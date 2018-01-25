@@ -24,18 +24,21 @@ Route::post('file', function(\Illuminate\Http\Request $request) {
     if (!$file) {
         return redirect('/');
     }
-    $fname = $file->getFilename();
-    $fpath = $file->getPath();
-    $t = $file->getRealPath();
-//    $file = new \SplFileObject($fpath . "\\" . $fname);
-    $finfo = $file->openFile();
-    while (!$file->eof()) {
-        $string = $file->fgets();
-        list($q, $a) = @explode("\\", $string);
+    if ($file->getError()) {
+        return response($file->getErrorMessage());
+    }
+    $fileObject = $file->openFile();
+    while (!$fileObject->eof()) {
+        $string = $fileObject->fgets();
+        $qaArray = @explode("\\", $string);
+        if (empty($qaArray[0]) || empty($qaArray[1])) {
+            continue;
+        }
+        list($q, $a) = $qaArray;
         $logs = DB::connection('mongodb')->collection('qa')->insert([
             'question' => @$q,
             'answer' => @$a
         ]);
     }
-    echo $content;
+    echo 'success';
 });
