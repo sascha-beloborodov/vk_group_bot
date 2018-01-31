@@ -15,30 +15,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('vk-bot', function () {
-    (new \App\Services\VK\Main())->callbackHandleEvent();
-});
 
-Route::post('file', function(\Illuminate\Http\Request $request) {
-    $file = $request->file('file');
-    if (!$file) {
-        return redirect('/');
-    }
-    if ($file->getError()) {
-        return response($file->getErrorMessage());
-    }
-    $fileObject = $file->openFile();
-    while (!$fileObject->eof()) {
-        $string = $fileObject->fgets();
-        $qaArray = @explode("\\", $string);
-        if (empty($qaArray[0]) || empty($qaArray[1])) {
-            continue;
-        }
-        list($q, $a) = $qaArray;
-        $logs = DB::connection('mongodb')->collection('qa')->insert([
-            'question' => @$q,
-            'answer' => @$a
-        ]);
-    }
-    echo 'success';
-});
+Auth::routes();
+
+Route::get('/home', 'HomeController@index');
+
+Route::resource('faq', 'FAQController');
+Route::get('faq-list', 'FAQController@getList');
