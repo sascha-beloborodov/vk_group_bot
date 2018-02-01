@@ -2,6 +2,8 @@
 
 namespace App\Services\VK;
 
+use Illuminate\Support\Facades\DB;
+
 class Main {
 
     const CALLBACK_API_EVENT_CONFIRMATION = 'confirmation';
@@ -19,6 +21,7 @@ class Main {
 
                 //Получение нового сообщения
                 case self::CALLBACK_API_EVENT_MESSAGE_NEW:
+                    laravelLog($event);
                     $this->callbackHandleMessageNew($event['object']);
                     break;
 
@@ -42,8 +45,15 @@ class Main {
     }
 
     function callbackHandleMessageNew($data) {
+
         $user_id = $data['user_id'];
-        (new Bot)->sendMessage($user_id);
+
+        $msg = 'Нет вариантов';
+
+        // die;
+
+        // $logs = DB::connection('mongodb')->collection('logs')->insert($answer);
+        (new Bot)->sendMessage($user_id, $msg);
         $this->callbackOkResponse();
     }
 
@@ -52,7 +62,7 @@ class Main {
     }
 
     function callbackResponse($data) {
-//  echo $data;
+        echo $data;
         exit();
     }
 

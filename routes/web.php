@@ -10,24 +10,34 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+use Illuminate\Support\Facades\DB;
+
+// $logs = DB::connection('mongodb')->collection('logs')->insert(['request' => 'vk-bot']);
+
 
 Route::get('/', function () {
+
     return view('welcome');
 });
 
-Route::get('vk-bot', function () {
+Route::any('vk-bot/hole', function(\Illuminate\Http\Request $request) {
     (new \App\Services\VK\Main())->callbackHandleEvent();
+    die;
 });
 
 Route::post('file', function(\Illuminate\Http\Request $request) {
+    // echo 'aaa';
     $file = $request->file('file');
-    if (!$file) {
-        return redirect('/');
-    }
+    // if (!$file) {
+    //     return redirect('/');
+    // }
+    // echo 'xxx';die;
     if ($file->getError()) {
-        return response($file->getErrorMessage());
+        echo $file->getErrorMessage();
+        die;
     }
     $fileObject = $file->openFile();
+    var_dump($fileObject);
     while (!$fileObject->eof()) {
         $string = $fileObject->fgets();
         $qaArray = @explode("\\", $string);
@@ -41,4 +51,13 @@ Route::post('file', function(\Illuminate\Http\Request $request) {
         ]);
     }
     echo 'success';
+    die;
 });
+
+
+// Route::group([], function () {
+//     // All your routes
+//     // $logs = DB::connection('mongodb')->collection('logs')->insert(['request' => 'vk-bot route']);
+    
+// });
+

@@ -122,3 +122,12 @@ function _log_write($message) {
     $log_name = BOT_LOGS_DIRECTORY.'/log_' . date("j.n.Y") . '.txt';
     file_put_contents($log_name, $mark . " : " . $message . "\n", FILE_APPEND);
 }
+
+
+function laravelLog($variable) {
+    ob_start();
+    var_dump($variable);
+    $out = ob_get_contents();
+    \Illuminate\Support\Facades\Log::useFiles(storage_path() . '/logs/debug.log');
+    \Illuminate\Support\Facades\Log::info($out);
+}

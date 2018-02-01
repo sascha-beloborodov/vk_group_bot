@@ -3,11 +3,11 @@
 namespace App\Services\VK;
 
 class Bot {
-    function sendMessage($user_id) {
+    function sendMessage($user_id, $msg = null) {
         $users_get_response = vkApi_usersGet($user_id);
         $user = array_pop($users_get_response);
-        $msg = "Привет, {$user['first_name']}!";
-        $attachments = null;
+        $msg = $msg ?? "Привет, {$user['first_name']}!";
+        $attachments = [];
 
 //        $photo = _bot_uploadPhoto($user_id, BOT_IMAGES_DIRECTORY.'/cat.jpeg');
 //

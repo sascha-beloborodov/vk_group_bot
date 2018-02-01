@@ -1,5 +1,5 @@
 <?php
-
+// echo 'bc64292c'; die;
 /**
  * Laravel - A PHP Framework For Web Artisans
  *
