@@ -15,10 +15,22 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('admin/login', 'Auth\\AdminLoginController@showLoginForm');
 
-Auth::routes();
+Route::post('admin/login', 'Auth\\AdminLoginController@login');
 
-Route::get('/home', 'HomeController@index');
+Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function() {
 
-Route::resource('faq', 'FAQController');
-Route::get('faq-list', 'FAQController@getList');
+    Route::get('home', 'HomeController@index');
+
+    Route::resource('faq', 'FAQController');
+    Route::get('faq-list', 'FAQController@getList');
+});
+
+Route::get('admin', function() {
+    if (\Illuminate\Support\Facades\Auth::check()) {
+        return redirect('admin/home');
+    }
+    return redirect('admin/login');
+});
+//Auth::routes();

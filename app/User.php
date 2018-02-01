@@ -9,6 +9,9 @@ class User extends Authenticatable
 {
     use Notifiable;
 
+    const ROLE_ADMIN = 1;
+    const ROLE_USER = 2;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -26,4 +29,9 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function isAdmin()
+    {
+        return (int) $this->role_id === self::ROLE_ADMIN;
+    }
 }

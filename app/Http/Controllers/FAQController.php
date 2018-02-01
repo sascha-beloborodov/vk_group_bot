@@ -62,6 +62,8 @@ class FAQController extends AppBaseController
         $input = $request->all();
         $input['created_at'] = Carbon::now(new \DateTimeZone('Europe/Moscow'))->format('Y-m-d H:i:s');
         $input['created_at_utc'] = Carbon::now(new \DateTimeZone('utc'))->format('Y-m-d H:i:s');
+        $input['updated_at'] = null;
+        $input['updated_at_utc'] = null;
 
         DB::connection('mongodb')->collection('faq')->insert($input);
 
@@ -112,21 +114,19 @@ class FAQController extends AppBaseController
      *
      * @return Response
      */
-    public function update($id, UpdateFAQRequest $request)
+    public function update($id, Request $request)
     {
-        $fAQ = $this->fAQRepository->findWithoutFail($id);
+        $input = $request->all();
+        $input['updated_at'] = Carbon::now(new \DateTimeZone('Europe/Moscow'))->format('Y-m-d H:i:s');
+        $input['updated_at_utc'] = Carbon::now(new \DateTimeZone('utc'))->format('Y-m-d H:i:s');
+        unset($input['_id']);
+        unset($input['id']);
+        DB::connection('mongodb')
+            ->collection('faq')
+            ->where(['_id' => $id])
+            ->update($input);
 
-        if (empty($fAQ)) {
-            Flash::error('F A Q not found');
-
-            return redirect(route('fAQS.index'));
-        }
-
-        $fAQ = $this->fAQRepository->update($request->all(), $id);
-
-        Flash::success('F A Q updated successfully.');
-
-        return redirect(route('fAQS.index'));
+        return $this->sendResponse([], 'faq saved!!');
     }
 
     /**
@@ -138,18 +138,10 @@ class FAQController extends AppBaseController
      */
     public function destroy($id)
     {
-        $fAQ = $this->fAQRepository->findWithoutFail($id);
-
-        if (empty($fAQ)) {
-            Flash::error('F A Q not found');
-
-            return redirect(route('fAQS.index'));
-        }
-
-        $this->fAQRepository->delete($id);
-
-        Flash::success('F A Q deleted successfully.');
-
-        return redirect(route('fAQS.index'));
+        $isDeleted = DB::connection('mongodb')
+            ->collection('faq')
+            ->where(['_id' => $id])
+            ->delete();
+        return $this->sendResponse(['isDeleted' => $isDeleted], 'Deleted Successfully');
     }
 }

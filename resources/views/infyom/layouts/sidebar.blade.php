@@ -33,7 +33,7 @@
         <!-- Sidebar Menu -->
 
         <ul class="sidebar-menu">
-            @include('layouts.menu')
+            @include('infyom.layouts.menu')
         </ul>
         <!-- /.sidebar-menu -->
     </section>

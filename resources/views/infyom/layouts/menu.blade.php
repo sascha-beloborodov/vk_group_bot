@@ -1,4 +1,4 @@
-<li class="{{ Request::is('fAQS*') ? 'active' : '' }}">
-    <a href="{!! route('fAQS.index') !!}"><i class="fa fa-edit"></i><span>F A Q S</span></a>
+<li class="{{ Request::is('admin/faq*') ? 'active' : '' }}">
+    <a href="{!! route('faq.index') !!}"><i class="fa fa-edit"></i><span>FAQ</span></a>
 </li>
 
