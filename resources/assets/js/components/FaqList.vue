@@ -54,6 +54,13 @@
                     <button @click="editTask(faqItem._id.$oid)" class="btn primary btn-xs pull-right">Edit</button>
                 </li>
             </ul>
+            <div v-if="hasPagination">
+                <a href="#" @click="goToPage(1)" v-bind:class="{ active: 1 == currentPage }">начало</a>&nbsp;&nbsp;
+                <span>
+                    <a href="#" @click="goToPage(pageNum)" v-for="(pageNum, index) in visiblePages" v-bind:class="{ active: pageNum == currentPage }">{{pageNum}}</a>&nbsp;&nbsp;
+                </span>
+                <a href="#" @click="goToPage(lastPage)" v-bind:class="{ active: lastPage == currentPage }">конец</a>
+            </div>
         </div>
 
     </div>
@@ -70,7 +77,14 @@
                     keywords: [],
                 },
                 keyword: '',
-                edit: false
+                edit: false,
+                currentPage: 1,
+                perPage: null,
+                lastPage: null,
+                total: null,
+                chosenPage: null,
+                hasPagination: null,
+                visiblePages: []
             };
         },
 
@@ -87,8 +101,16 @@
             },
 
             fetchTaskList() {
-                axios.get('/admin/faq-list').then((res) => {
-                    this.list = res.data;
+                const pageParams = this.chosenPage ? `?page=${this.chosenPage}` : ``;
+                axios.get(`/admin/faq-list${pageParams}`).then((res) => {
+                    debugger;
+                    this.list = res.data.data;
+                    this.currentPage = res.data.current_page;
+                    this.perPage = res.data.per_page;
+                    this.lastPage = res.data.last_page;
+                    this.total = res.data.total;
+                    this.visiblePages = [];
+                    this.setPagination();
                 });
             },
 
@@ -141,6 +163,36 @@
                 this.faq.answer = '';
                 this.faq.question = '';
                 this.faq.keywords = [];
+            },
+
+            setPagination() {
+                if (this.total > this.perPage) {
+                    this.hasPagination = true;
+                    for (let i = 1; i <= this.lastPage; i++) {
+                        if (this.currentPage - 2 > 0 && this.currentPage - 2 == i) {
+                            this.visiblePages.push(this.currentPage - 2);
+                        }
+                        if (this.currentPage - 1 > 0 && this.currentPage - 1 == i) {
+                            this.visiblePages.push(this.currentPage - 1);
+                        }
+                        if (this.currentPage > 0 && this.currentPage == i) {
+                            this.visiblePages.push(this.currentPage);
+                        }
+                        if (this.currentPage + 1 > 0 && this.currentPage + 1 == i) {
+                            this.visiblePages.push(this.currentPage + 1);
+                        }
+                        if (this.currentPage + 2 > 0 && this.currentPage + 2 == i) {
+                            this.visiblePages.push(this.currentPage + 2);
+                        }
+                    }
+                } else {
+                    this.hasPagination = false;
+                }
+            },
+
+            goToPage(pageNum) {
+                this.chosenPage = pageNum;
+                this.fetchTaskList();
             }
         }
     }
@@ -151,11 +203,16 @@
         float: right;
         cursor: pointer;
     }
+
     .edited-keyword-list-item:hover {
         background: #8C8C8C;
     }
 
     .list-group-item {
         overflow: hidden;
+    }
+
+    a.active {
+        color: #000;
     }
 </style>

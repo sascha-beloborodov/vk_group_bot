@@ -37,7 +37,13 @@ class FAQController extends AppBaseController
 
     public function getList(Request $request)
     {
-        return response()->json( DB::connection('mongodb')->collection('faq')->orderBy('created_at', 'desc')->get() );
+        return response()
+            ->json(
+                DB::connection('mongodb')
+                    ->collection('faq')
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(10)
+            );
     }
 
     /**
