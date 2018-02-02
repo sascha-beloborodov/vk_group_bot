@@ -24,7 +24,7 @@ Route::post('admin/login', 'Auth\\AdminLoginController@login');
 
 Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () {
 
-	Route::get('home', 'HomeController@index');
+	Route::get('/', 'HomeController@index');
 
 	Route::resource('faq', 'FAQController');
 	Route::get('faq-list', 'FAQController@getList');
@@ -34,10 +34,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
 	Route::post('send-message/{userVKId}', 'MessagesController@sendMessage');
 });
 
-Route::get('admin', function () {
-	if (\Illuminate\Support\Facades\Auth::check()) {
-		return redirect('admin/home');
-	}
-	return redirect('admin/login');
-});
+//Route::get('admin', function () {
+//	if (\Illuminate\Support\Facades\Auth::check()) {
+//		return redirect('admin/home');
+//	}
+//	return redirect('admin/login');
+//});
+
 //Auth::routes();

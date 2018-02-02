@@ -37,6 +37,13 @@
                 </div>
             </form>
             <h4>All FAQ</h4>
+            <div v-if="hasPagination">
+                <pagination
+                        :currentPage="currentPage"
+                        :lastPage="lastPage"
+                        :goToPage="goToPage"
+                        :visiblePages="visiblePages"></pagination>
+            </div>
             <ul class="list-group">
                 <li v-if='list.length === 0'>There are no faqs yet!</li>
                 <li class="list-group-item" v-for="(faqItem, index) in list">
@@ -55,17 +62,23 @@
                 </li>
             </ul>
             <div v-if="hasPagination">
-                <a href="#" @click="goToPage(1)" v-bind:class="{ active: 1 == currentPage }">начало</a>&nbsp;&nbsp;
-                <span>
-                    <a href="#" @click="goToPage(pageNum)" v-for="(pageNum, index) in visiblePages" v-bind:class="{ active: pageNum == currentPage }">{{pageNum}}</a>&nbsp;&nbsp;
-                </span>
-                <a href="#" @click="goToPage(lastPage)" v-bind:class="{ active: lastPage == currentPage }">конец</a>
+                <pagination
+                        :currentPage="currentPage"
+                        :lastPage="lastPage"
+                        :goToPage="goToPage"
+                        :visiblePages="visiblePages"></pagination>
             </div>
         </div>
 
     </div>
 </template>
 <script>
+    import {
+        LOADING_SUCCESS,
+        LOADING
+    } from '../store/mutation-types'
+    import Pagination from './Pagination';
+
     export default {
         data() {
             return {
@@ -92,6 +105,10 @@
             this.fetchFAQList();
         },
 
+        components: {
+            pagination: Pagination
+        },
+
         methods: {
             addKeyword(keyw) {
                 if (keyw && keyw.length > 3) {
@@ -101,9 +118,10 @@
             },
 
             fetchFAQList() {
+                this.$store.commit(LOADING);
                 const pageParams = this.chosenPage ? `?page=${this.chosenPage}` : ``;
                 axios.get(`/admin/faq-list${pageParams}`).then((res) => {
-                    debugger;
+                    this.$store.commit(LOADING_SUCCESS);
                     this.list = res.data.data;
                     this.currentPage = res.data.current_page;
                     this.perPage = res.data.per_page;
@@ -115,7 +133,6 @@
             },
 
             createOrUpdateFAQ(id) {
-                debugger;
                 if (!this.edit) {
                     axios.post(`/admin/faq`, this.faq)
                         .then((res) => {
@@ -210,9 +227,5 @@
 
     .list-group-item {
         overflow: hidden;
-    }
-
-    a.active {
-        color: #000;
     }
 </style>

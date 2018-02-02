@@ -8,7 +8,7 @@
                     <b>От:</b><br>
                     <p>{{ message.data.user_id }}</p>
                     <div>
-                        <textarea v-model="messages[index]" cols="30" rows="10"></textarea>
+                        <textarea class="form-control" v-model="messages[index]" cols="30" rows="10"></textarea>
                         <a href="#" @click="reply(message.data.user_id, index)">Ответить</a>
                     </div>
                     <b>Текст:</b><br>
@@ -21,6 +21,12 @@
 </template>
 
 <script>
+    import {
+        LOADING_SUCCESS,
+        LOADING
+    } from '../store/mutation-types'
+
+
     export default {
         data() {
             return {
@@ -35,7 +41,9 @@
 
         methods: {
             fetchMessagesList() {
+                this.$store.commit(LOADING);
                 axios.get(`/admin/messages-list`).then((response) => {
+                    this.$store.commit(LOADING_SUCCESS);
                     this.list = response.data.data;
                 });
             },

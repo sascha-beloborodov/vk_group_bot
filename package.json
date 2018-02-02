@@ -21,6 +21,9 @@
         "vue": "^2.5.7"
     },
     "dependencies": {
-        "vue-router": "^3.0.1"
+        "toastr": "^2.1.4",
+        "vee-validate": "^2.0.3",
+        "vue-router": "^3.0.1",
+        "vuex": "^3.0.1"
     }
 }

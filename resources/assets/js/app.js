@@ -1,32 +1,44 @@
-
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-
 require('./bootstrap');
 
 // window.Vue = require('vue');
 
+// import Vue from 'vue';
+// import VueRouter from 'vue-router'
+//
+// // Vue.use(VueRouter);
+//
+// const FaqList = Vue.component('faq-list', require('./components/FaqList.vue'));
+// const MessagesList = Vue.component('messages-list', require('./components/MessagesList.vue'));
+// debugger;
+// const routes = [
+//     { path: '/faq', component: FaqList },
+//     { path: '/messages', component: MessagesList }
+// ];
+//
+// const router = new VueRouter({
+//     routes
+// });
+//
+// if (document.getElementById('app')) {
+//     // const app = new Vue({
+//     //     el: '#app'
+//     // });
+//
+//     const app = new Vue({
+//         router
+//     }).$mount('#app')
+// }
+
+
 import Vue from 'vue';
-import VueRouter from 'vue-router'
+import App from './App';
+import router from './router';
+import store from './store';
 
-Vue.use(VueRouter);
-
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-
-Vue.component('faq-list', require('./components/FaqList.vue'));
-Vue.component('messages-list', require('./components/MessagesList.vue'));
-
-
-if (document.getElementById('app')) {
-    const app = new Vue({
-        el: '#app'
-    });
-}
-
+new Vue({
+    el: '#app',
+    router,
+    store,
+    template: '<App/>',
+    components: { App }
+})
