@@ -4,7 +4,7 @@
             <h1>My FAQ's</h1>
             <h4 v-if='edit'>Редактирование</h4>
             <h4 v-if='!edit'>Новый вопрос-ответ</h4>
-            <form action="#" @submit.prevent="createTask(faq._id)">
+            <form action="#" @submit.prevent="createOrUpdateFAQ(faq._id)">
                 <div class="form-group">
                     <label for="">Вопрос:</label>
                     <input v-model="faq.question" type="text" name="question" class="form-control" autofocus><br>
@@ -50,8 +50,8 @@
                             <span>{{keyw}}</span>
                         </li>
                     </ul>
-                    <button @click="deleteTask(faqItem._id.$oid)" class="btn btn-danger btn-xs pull-right">Delete</button>&nbsp;&nbsp;
-                    <button @click="editTask(faqItem._id.$oid)" class="btn primary btn-xs pull-right">Edit</button>
+                    <button @click="deleteFAQ(faqItem._id.$oid)" class="btn btn-danger btn-xs pull-right">Delete</button>&nbsp;&nbsp;
+                    <button @click="editFAQ(faqItem._id.$oid)" class="btn primary btn-xs pull-right">Edit</button>
                 </li>
             </ul>
             <div v-if="hasPagination">
@@ -89,7 +89,7 @@
         },
 
         created() {
-            this.fetchTaskList();
+            this.fetchFAQList();
         },
 
         methods: {
@@ -100,7 +100,7 @@
                 }
             },
 
-            fetchTaskList() {
+            fetchFAQList() {
                 const pageParams = this.chosenPage ? `?page=${this.chosenPage}` : ``;
                 axios.get(`/admin/faq-list${pageParams}`).then((res) => {
                     debugger;
@@ -114,36 +114,36 @@
                 });
             },
 
-            createTask(id) {
+            createOrUpdateFAQ(id) {
                 debugger;
                 if (!this.edit) {
                     axios.post(`/admin/faq`, this.faq)
                         .then((res) => {
                             this.clearData();
-                            this.fetchTaskList();
+                            this.fetchFAQList();
                         })
                         .catch((err) => console.error(err));
                 } else {
                     axios.put(`/admin/faq/${id.$oid}`, this.faq)
                         .then((res) => {
                             this.clearData();
-                            this.fetchTaskList();
+                            this.fetchFAQList();
                         })
                         .catch((err) => console.error(err));
                 }
             },
 
-            editTask(id) {
+            editFAQ(id) {
                 axios.get(`/admin/faq/${id}`).then((res) => {
                     this.faq = res.data.data;
                     this.edit = true;
                 });
             },
 
-            deleteTask(id) {
+            deleteFAQ(id) {
                 axios.delete(`/admin/faq/${id}`)
                     .then((res) => {
-                        this.fetchTaskList()
+                        this.fetchFAQList()
                     })
                     .catch((err) => console.error(err));
             },
@@ -192,7 +192,7 @@
 
             goToPage(pageNum) {
                 this.chosenPage = pageNum;
-                this.fetchTaskList();
+                this.fetchFAQList();
             }
         }
     }

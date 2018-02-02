@@ -6,12 +6,12 @@
         <!-- Sidebar user panel (optional) -->
         <div class="user-panel">
             <div class="pull-left image">
-                <img src="http://infyom.com/images/logo/blue_logo_150x150.jpg" class="img-circle"
+                <img src="http://kfcbattle.com/bitrix/templates/kfc_2017/img/battle2018/main-logo.svg" class="img-circle"
                      alt="User Image"/>
             </div>
             <div class="pull-left info">
                 @if (Auth::guest())
-                <p>InfyOm</p>
+                <p>KFC</p>
                 @else
                     <p>{{ Auth::user()->name}}</p>
                 @endif
