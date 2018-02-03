@@ -10,6 +10,7 @@ export default new Vuex.Store({
     strict: true,
     state: {
         showLoader: false,
+        showModal: false
     },
     mutations: Object.assign({}, mutations),
     // getters: Object.assign({}, productGetters, manufacturerGetters),

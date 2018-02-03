@@ -8,8 +8,7 @@
                     <b>От:</b><br>
                     <p>{{ message.data.user_id }}</p>
                     <div>
-                        <textarea class="form-control" v-model="messages[index]" cols="30" rows="10"></textarea>
-                        <a href="#" @click="reply(message.data.user_id, index)">Ответить</a>
+                        <button class="btn btn-primary" id="show-modal" @click="openModal(message.data.user_id)">Ответить</button>
                     </div>
                     <b>Текст:</b><br>
                     <p>{{ message.data.body }}</p>
@@ -17,27 +16,51 @@
                 </li>
             </ul>
         </div>
+        <message-modal v-if="showModal">
+            <div slot="body">
+                <textarea class="form-control" v-model="message" cols="30" rows="10"></textarea>
+            </div>
+            <div slot="footer">
+                <button class="btn btn-success" @click="reply()">Отправить</button>
+                <button class="btn btn-danger" @click="closeModal()">Закрыть</button>
+            </div>
+        </message-modal>
     </div>
 </template>
 
 <script>
     import {
         LOADING_SUCCESS,
-        LOADING
-    } from '../store/mutation-types'
-
+        LOADING,
+        MODAL_OPEN,
+        MODAL_CLOSE
+    } from '../store/mutation-types';
+    import MessageModal from './MessageModal';
 
     export default {
         data() {
             return {
                 list: [],
-                messages: []
+                messages: [],
+                message: '',
+                currentUserId: 0
             }
+        },
+
+        components: {
+            messageModal: MessageModal
         },
 
         created() {
             this.fetchMessagesList();
         },
+
+        computed: {
+            showModal() {
+                return this.$store.state.showModal;
+            },
+        },
+
 
         methods: {
             fetchMessagesList() {
@@ -48,11 +71,25 @@
                 });
             },
 
-            reply(userId, index) {
-                const data = { text: this.messages[index] };
-                axios.post(`/admin/send-message/${userId}`, data).then((response) => {
-                    this.messages[index] = '';
-                });
+            reply(index) {
+                const data = { text: this.message };
+                this.$store.commit(LOADING);
+                axios
+                    .post(`/admin/send-message/${this.currentUserId}`, data)
+                    .then((response) => {
+                    console.log(response);
+                })
+                    .catch(err => this.$store.commit(LOADING_SUCCESS));
+            },
+
+            openModal(userId) {
+                this.currentUserId = userId;
+                this.$store.commit(MODAL_OPEN);
+            },
+
+            closeModal() {
+                this.message = '';
+                this.$store.commit(MODAL_CLOSE);
             }
         }
 

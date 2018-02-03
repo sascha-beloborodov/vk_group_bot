@@ -15,5 +15,11 @@ export const mutations = {
     },
     [LOADING_SUCCESS] (state, payload) {
         state.showLoader = false;
-    }
+    },
+    [MODAL_OPEN] (state) {
+        state.showModal = true;
+    },
+    [MODAL_CLOSE] (state, payload) {
+        state.showModal = false;
+    },
 };
