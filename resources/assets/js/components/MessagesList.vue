@@ -78,6 +78,7 @@
                     .post(`/admin/send-message/${this.currentUserId}`, data)
                     .then((response) => {
                     console.log(response);
+                    this.$store.commit(LOADING_SUCCESS)
                 })
                     .catch(err => this.$store.commit(LOADING_SUCCESS));
             },
