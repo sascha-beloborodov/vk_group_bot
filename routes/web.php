@@ -32,6 +32,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
 	Route::get('messages', 'MessagesController@index')->name('messages.index');
 	Route::get('messages-list', 'MessagesController@getMessages');
 	Route::post('send-message/{userVKId}', 'MessagesController@sendMessage');
+
+	Route::get('users/{id}', 'UsersController@userById');
 });
 
 //Route::get('admin', function () {
