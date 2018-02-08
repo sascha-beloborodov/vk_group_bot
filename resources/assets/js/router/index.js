@@ -3,12 +3,14 @@ import Router from 'vue-router'
 
 import MessagesList from './messages';
 import FaqList from './faq';
+import User from './users';
 
-Vue.use(Router)
+Vue.use(Router);
 
 export default new Router({
     routes: [
         MessagesList,
-        FaqList
+        FaqList,
+        User
     ]
-})
+});
