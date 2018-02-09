@@ -6,7 +6,7 @@
                 <li v-if='list.length === 0'>Нет пока сообщений!</li>
                 <li class="list-group-item" v-for="(message, index) in list">
                     <b>От:</b><br>
-                    <a :href="userLink(message.data.user_id)">{{ message.data.user_id }}</a>
+                    <p><a :href="createLink(message.data.user_id)">{{ message.data.user_id }}</a></p>
                     <div>
                         <button class="btn btn-primary" id="show-modal" @click="openModal(message.data.user_id)">Ответить</button>
                     </div>
@@ -93,8 +93,8 @@
                 this.$store.commit(MODAL_CLOSE);
             },
 
-            userLink(userId) {
-                return `#/user/${userId}`;
+            createLink(userId) {
+                return `#/users/${userId}`;
             }
         }
 
