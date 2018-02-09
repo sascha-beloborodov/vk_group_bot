@@ -1,6 +1,6 @@
 <template>
-    <div class='row'>
-        <div class="col-md-8">
+    <div class='row show-page-container'>
+        <div class="col-md-8" v-if="isLoaded">
             <h1>My FAQ's</h1>
             <h4 v-if='edit'>Редактирование</h4>
             <h4 v-if='!edit'>Новый вопрос-ответ</h4>
@@ -37,13 +37,12 @@
                 </div>
             </form>
             <h4>All FAQ</h4>
-            <div v-if="hasPagination">
-                <pagination
-                        :currentPage="currentPage"
-                        :lastPage="lastPage"
-                        :goToPage="goToPage"
-                        :visiblePages="visiblePages"></pagination>
-            </div>
+            <pagination
+                    :currentPage="currentPage"
+                    :lastPage="lastPage"
+                    :url="url"
+                    :perPage="perPage"
+                    :total="total"></pagination>
             <ul class="list-group">
                 <li v-if='list.length === 0'>There are no faqs yet!</li>
                 <li class="list-group-item" v-for="(faqItem, index) in list">
@@ -61,13 +60,12 @@
                     <button @click="editFAQ(faqItem._id.$oid)" class="btn primary btn-xs pull-right">Edit</button>
                 </li>
             </ul>
-            <div v-if="hasPagination">
-                <pagination
-                        :currentPage="currentPage"
-                        :lastPage="lastPage"
-                        :goToPage="goToPage"
-                        :visiblePages="visiblePages"></pagination>
-            </div>
+            <pagination
+                    :currentPage="currentPage"
+                    :lastPage="lastPage"
+                    :url="url"
+                    :perPage="perPage"
+                    :total="total"></pagination>
         </div>
 
     </div>
@@ -96,8 +94,8 @@
                 lastPage: null,
                 total: null,
                 chosenPage: null,
-                hasPagination: null,
-                visiblePages: []
+
+                isLoaded: false,
             };
         },
 
@@ -107,6 +105,18 @@
 
         components: {
             pagination: Pagination
+        },
+
+        watch: {
+            $route() {
+                this.fetchFAQList();
+            }
+        },
+
+        computed: {
+            url() {
+                return `#/faq`;
+            }
         },
 
         methods: {
@@ -120,15 +130,19 @@
             fetchFAQList() {
                 this.$store.commit(LOADING);
                 const pageParams = this.chosenPage ? `?page=${this.chosenPage}` : ``;
-                axios.get(`/admin/faq-list${pageParams}`).then((res) => {
+                const query = this.$route.query || { page: 1 };
+                if (query.page === undefined) {
+                    query.page = 1;
+                }
+                axios.get(`/admin/faq-list?page=${query.page}`).then((res) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.list = res.data.data;
+
                     this.currentPage = res.data.current_page;
                     this.perPage = res.data.per_page;
                     this.lastPage = res.data.last_page;
                     this.total = res.data.total;
-                    this.visiblePages = [];
-                    this.setPagination();
+                    this.isLoaded = true;
                 });
             },
 
@@ -181,36 +195,6 @@
                 this.faq.question = '';
                 this.faq.keywords = [];
             },
-
-            setPagination() {
-                if (this.total > this.perPage) {
-                    this.hasPagination = true;
-                    for (let i = 1; i <= this.lastPage; i++) {
-                        if (this.currentPage - 2 > 0 && this.currentPage - 2 == i) {
-                            this.visiblePages.push(this.currentPage - 2);
-                        }
-                        if (this.currentPage - 1 > 0 && this.currentPage - 1 == i) {
-                            this.visiblePages.push(this.currentPage - 1);
-                        }
-                        if (this.currentPage > 0 && this.currentPage == i) {
-                            this.visiblePages.push(this.currentPage);
-                        }
-                        if (this.currentPage + 1 > 0 && this.currentPage + 1 == i) {
-                            this.visiblePages.push(this.currentPage + 1);
-                        }
-                        if (this.currentPage + 2 > 0 && this.currentPage + 2 == i) {
-                            this.visiblePages.push(this.currentPage + 2);
-                        }
-                    }
-                } else {
-                    this.hasPagination = false;
-                }
-            },
-
-            goToPage(pageNum) {
-                this.chosenPage = pageNum;
-                this.fetchFAQList();
-            }
         }
     }
 </script>

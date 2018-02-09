@@ -11,19 +11,40 @@ class UsersController extends AppBaseController
     {
         $user = DB::connection('mongodb')
             ->collection('vk_users')
-            ->where('vk_id', (int) $id)
+            ->where('vk_id', (int)$id)
             ->first();
-
-        $messages = DB::connection('mongodb')
-            ->collection('messages')
-            ->where('data.user_id', (int) $id)
-            ->orderBy('data.date', 'desc')
-            ->paginate(50);
 
         return response()
             ->json([
                 'user' => $user,
+            ]);
+    }
+
+    public function usersMessages($id, Request $request)
+    {
+        $messages = DB::connection('mongodb')
+            ->collection('messages')
+            ->where('data.user_id', (int)$id)
+            ->orWhere('data.to_user_id', (int)$id)
+            ->orderBy('data.date', 'desc')
+            ->paginate(5);
+
+        return response()
+            ->json([
                 'messages' => $messages
+            ]);
+    }
+
+    public function users(Request $request)
+    {
+        $users = DB::connection('mongodb')
+            ->collection('vk_users')
+            ->orderBy('created_at', 'desc')
+            ->paginate(2);
+
+        return response()
+            ->json([
+                'users' => $users
             ]);
     }
 

@@ -4,10 +4,13 @@
             <div class="container">
                 <ul class="nav nav-tabs">
                     <li v-bind:class="{ active: $route.path == '/messages-list' }">
-                        <router-link to="/messages-list"><i class="fa fa-home"></i> Сообщения</router-link>
+                        <router-link to="/messages-list"><i class="fa fa-home"></i>Сообщения</router-link>
                     </li>
                     <li v-bind:class="{ active: $route.path == '/faq' }">
-                        <router-link to="/faq"><i class="fa fa-home"></i> FAQ</router-link>
+                        <router-link to="/faq"><i class="fa fa-home"></i>Вопросы FAQ</router-link>
+                    </li>
+                    <li v-bind:class="{ active: $route.path == '/users' }">
+                        <router-link to="/users"><i class="fa fa-home"></i>Пользователи</router-link>
                     </li>
                 </ul>
             </div>

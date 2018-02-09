@@ -33,6 +33,16 @@ class MessagesController extends AppBaseController
 
     public function sendMessage($userVKId, Request $request)
     {
+        DB::connection('mongodb')->collection('messages')->insert([
+            'created_at' => Carbon::now(new \DateTimeZone('Europe/Moscow'))->format('Y-m-d H:i:s'),
+            'created_at_utc' => Carbon::now(new \DateTimeZone('utc'))->format('Y-m-d H:i:s'),
+            'data' => [
+                'body' => $request->get('text'),
+                'from' => 'admin',
+                'date' => time(),
+                'to_user_id' => (int) $userVKId
+            ]
+        ]);
         vkApi_messagesSend($userVKId, $request->get('text', 'Test'));
         return $this->sendResponse([], 'Message is sent');
     }
