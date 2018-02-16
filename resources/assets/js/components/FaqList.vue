@@ -14,6 +14,10 @@
                     <textarea v-model="faq.answer" name="answer" class="form-control"></textarea><br>
                 </div>
                 <div class="form-group">
+                    <label for="">Категория:</label>
+                    <input v-model="faq.category" name="answer" class="form-control"><br>
+                </div>
+                <div class="form-group">
                     <p v-if='faq.keywords.length === 0'>Нет ключевых слов</p>
                     <p>Ключевые слова</p>
                     <ol>
@@ -84,6 +88,7 @@
                 faq: {
                     id: null,
                     answer: '',
+                    category: '',
                     question: '',
                     keywords: [],
                 },
@@ -192,6 +197,7 @@
             clearData() {
                 this.edit = false;
                 this.faq.answer = '';
+                this.faq.category = '';
                 this.faq.question = '';
                 this.faq.keywords = [];
             },
