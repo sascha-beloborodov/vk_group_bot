@@ -15,6 +15,8 @@ use Response;
 
 class MessagesController extends AppBaseController
 {
+    const DEFAULT_PER_PAGE = 100;
+
     public function index(Request $request)
     {
         return view('infyom.templates.messages.index');
@@ -27,7 +29,7 @@ class MessagesController extends AppBaseController
                 DB::connection('mongodb')
                     ->collection('messages')
                     ->orderBy('messages.data.date', 'desc')
-                    ->paginate(30)
+                    ->paginate($request->get('per_page', self::DEFAULT_PER_PAGE))
             );
     }
 

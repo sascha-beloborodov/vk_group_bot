@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 class UsersController extends AppBaseController
 {
+    const DEFAULT_PER_PAGE = 100;
+
     public function userById($id, Request $request)
     {
         $user = DB::connection('mongodb')
@@ -27,7 +29,39 @@ class UsersController extends AppBaseController
             ->where('data.user_id', (int)$id)
             ->orWhere('data.to_user_id', (int)$id)
             ->orderBy('data.date', 'desc')
-            ->paginate(5);
+            ->paginate($request->get('per_page', self::DEFAULT_PER_PAGE));
+
+
+        $messageItems = $messages->items();
+        $ids = [];
+        foreach ($messageItems as &$messageItem) {
+            if ($messageItem['unread'] == 1) {
+                $_id = $messageItem['_id'];
+                $ids[] = (string) $_id;
+                $messageItem['is_new'] = 1;
+            } else {
+                $messageItem['is_new'] = 0;
+            }
+        }
+
+        $messages->each(function($item) use ($messageItems) {
+            foreach ($messageItems as $messageItem) {
+                if ((string) $item['_id'] == (string) $messageItem['_id']) {
+                    $item['is_new'] = $messageItem['is_new'];
+                }
+            }
+        });
+
+        if (!empty($ids)) {
+            DB
+                ::connection('mongodb')
+                ->collection('messages')
+                ->whereIn('_id', $ids)
+                ->update([
+                    'unread' => 0
+                ]);
+        }
+
 
         return response()
             ->json([
