@@ -62,7 +62,6 @@ class UsersController extends AppBaseController
                 ]);
         }
 
-
         return response()
             ->json([
                 'messages' => $messages

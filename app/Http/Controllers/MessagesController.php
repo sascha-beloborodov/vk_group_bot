@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Flash;
 use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Response;
 
@@ -24,13 +25,64 @@ class MessagesController extends AppBaseController
 
     public function getMessages(Request $request)
     {
+        $messages = DB::connection('mongodb')
+            ->collection('messages')
+            ->orderBy('messages.data.date', 'desc')
+            ->paginate($request->get('per_page', self::DEFAULT_PER_PAGE));
+
+        $messageItems = $messages->items();
+        $ids = [];
+        foreach ($messageItems as &$messageItem) {
+            if ($messageItem['unread'] == 1) {
+                $_id = $messageItem['_id'];
+                $ids[] = (string) $_id;
+                $messageItem['is_new'] = 1;
+            } else {
+                $messageItem['is_new'] = 0;
+            }
+        }
+
+        $swapMessages = $messages->map(function(&$item) use ($messageItems) {
+            foreach ($messageItems as $messageItem) {
+                if ((string) $item['_id'] == (string) $messageItem['_id']) {
+                    $item['is_new'] = $messageItem['is_new'];
+                    return $item;
+                }
+            }
+            return $item;
+        });
+
+//        foreach ($messages as $k => &$item) {
+//            foreach ($messageItems as $messageItem) {
+//                if ((string) $item['_id'] == (string) $messageItem['_id']) {
+//                    $item['is_new'] = $messageItem['is_new'];
+//                    break;
+//                }
+//            }
+//        }
+
+
+        $messages = new LengthAwarePaginator(
+            $swapMessages,
+            $messages->total(),
+            $messages->perPage(),
+            $messages->currentPage()
+        );
+//        dd($messages);
+
+
+        if (!empty($ids)) {
+            DB
+                ::connection('mongodb')
+                ->collection('messages')
+                ->whereIn('_id', $ids)
+                ->update([
+                    'unread' => 0
+                ]);
+        }
+
         return response()
-            ->json(
-                DB::connection('mongodb')
-                    ->collection('messages')
-                    ->orderBy('messages.data.date', 'desc')
-                    ->paginate($request->get('per_page', self::DEFAULT_PER_PAGE))
-            );
+            ->json($messages);
     }
 
     public function sendMessage($userVKId, Request $request)

@@ -12,11 +12,15 @@
                     </div>
                     <b>Текст:</b><br>
                     <p>{{ message.data.body }}</p>
-                    <b>Аттачс (пока нет):</b>
+                    <p></p><b>Новое: {{ message.is_new ? '+' : '-' }}</b>
+                    <p><b>Дата:</b> {{ message.created_at }}</p>
                 </li>
             </ul>
         </div>
         <message-modal v-if="showModal">
+            <div slot="header">
+                Написать сообщение пользователю
+            </div>
             <div slot="body">
                 <textarea class="form-control" v-model="message" cols="30" rows="10"></textarea>
             </div>
