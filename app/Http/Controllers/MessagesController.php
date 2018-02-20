@@ -25,10 +25,18 @@ class MessagesController extends AppBaseController
 
     public function getMessages(Request $request)
     {
-        $messages = DB::connection('mongodb')
+        $query = DB::connection('mongodb')
             ->collection('messages')
-            ->orderBy('messages.data.date', 'desc')
-            ->paginate($request->get('per_page', self::DEFAULT_PER_PAGE));
+            ->orderBy('messages.data.date', 'desc');
+
+        if ($request->get('type')) {
+            $query = $query->where('data.type', $request->get('type'));
+        }
+        $totalMessages = $query->count();
+        $cloneQuery = clone  $query;
+        $unreadMessages = $cloneQuery->where('unread', 1)->count();
+
+        $messages = $query->paginate($request->get('per_page', self::DEFAULT_PER_PAGE));
 
         $messageItems = $messages->items();
         $ids = [];
@@ -52,24 +60,12 @@ class MessagesController extends AppBaseController
             return $item;
         });
 
-//        foreach ($messages as $k => &$item) {
-//            foreach ($messageItems as $messageItem) {
-//                if ((string) $item['_id'] == (string) $messageItem['_id']) {
-//                    $item['is_new'] = $messageItem['is_new'];
-//                    break;
-//                }
-//            }
-//        }
-
-
         $messages = new LengthAwarePaginator(
             $swapMessages,
             $messages->total(),
             $messages->perPage(),
             $messages->currentPage()
         );
-//        dd($messages);
-
 
         if (!empty($ids)) {
             DB
@@ -82,7 +78,11 @@ class MessagesController extends AppBaseController
         }
 
         return response()
-            ->json($messages);
+            ->json([
+                'messages' => $messages,
+                'totalMessages' => $totalMessages,
+                'unreadMessages' => $unreadMessages,
+            ]);
     }
 
     public function sendMessage($userVKId, Request $request)

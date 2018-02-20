@@ -2,7 +2,7 @@
     <div class="row show-page-container">
         <div class="col-md-8" v-if="isLoaded">
             <h2>Список пользователей</h2>
-            <table class="table">
+            <table class="table table-hover">
                 <tr>
                     <td>ID</td>
                     <td>Имя</td>
@@ -64,7 +64,7 @@
 
         computed: {
             url() {
-                return `#/faq`;
+                return `#/users`;
             }
         },
 

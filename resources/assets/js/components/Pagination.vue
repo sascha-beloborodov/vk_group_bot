@@ -1,5 +1,5 @@
 <template>
-    <nav aria-label="Page navigation">
+    <nav aria-label="Page navigation" v-if="hasPagination">
         <ul class="pagination">
             <li>
                 <a :href="makeLink(1)" v-bind:class="{ active: 1 == currentPage }">Начало</a>

@@ -1,21 +1,40 @@
 <template>
-    <div class='row'>
+    <div class='row' v-if="isLoaded">
+        <h1>Список сообщений ({{ this.unreadMessages }} | {{ this.totalMessages }})</h1>
         <div class="col-md-8">
-            <h1>Список всех сообщений</h1>
-            <ul class="list-group">
-                <li v-if='list.length === 0'>Нет пока сообщений!</li>
-                <li class="list-group-item" v-for="(message, index) in list">
-                    <b>От:</b><br>
-                    <p><a :href="createLink(message.data.user_id)">{{ message.data.user_id }}</a></p>
-                    <div>
-                        <button class="btn btn-primary" id="show-modal" @click="openModal(message.data.user_id)">Ответить</button>
-                    </div>
-                    <b>Текст:</b><br>
-                    <p>{{ message.data.body }}</p>
-                    <p></p><b>Новое: {{ message.is_new ? '+' : '-' }}</b>
-                    <p><b>Дата:</b> {{ message.created_at }}</p>
-                </li>
-            </ul>
+            <div class="form-group">
+                <label for="">Тип</label>
+                <select name="" id="" class="form-control" v-model="filter.type" @change="changeType">
+                    <option :value="''" selected>Все</option>
+                    <option :value="'faq'">FAQ</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <table class="table table-hover">
+                <tr>
+                    <td>От</td>
+                    <td>Текст</td>
+                    <td>Новое</td>
+                    <td>Дата</td>
+                    <td>Тип</td>
+                    <td></td>
+                </tr>
+                <tr v-for="(message, index) in list">
+                    <td><a :href="createLink(message.data.user_id)">{{ message.data.user_id }}</a></td>
+                    <td>{{ message.data.body }}</td>
+                    <td>{{ message.is_new ? '+' : '-' }}</td>
+                    <td>{{ message.data.type }}</td>
+                    <td>{{ message.created_at }}</td>
+                    <td> <button class="btn btn-primary" id="show-modal" @click="openModal(message.data.user_id)">Ответить</button></td>
+                </tr>
+            </table>
+            <pagination
+                    :currentPage="currentPage"
+                    :lastPage="lastPage"
+                    :url="url"
+                    :perPage="perPage"
+                    :total="total"></pagination>
         </div>
         <message-modal v-if="showModal">
             <div slot="header">
@@ -40,19 +59,32 @@
         MODAL_CLOSE
     } from '../store/mutation-types';
     import MessageModal from './MessageModal';
+    import Pagination from './Pagination';
 
     export default {
         data() {
             return {
                 list: [],
                 messages: [],
+                totalMessages: 0,
+                unreadMessages: 0,
                 message: '',
-                currentUserId: 0
+                currentUserId: 0,
+                filter: {
+                    type: ''
+                },
+
+                isLoaded: false,
+                currentPage: 1,
+                perPage: null,
+                lastPage: null,
+                total: null,
             }
         },
 
         components: {
-            messageModal: MessageModal
+            messageModal: MessageModal,
+            pagination: Pagination
         },
 
         created() {
@@ -63,15 +95,25 @@
             showModal() {
                 return this.$store.state.showModal;
             },
+            url() {
+                return `#/messages-list`;
+            }
         },
 
 
         methods: {
             fetchMessagesList() {
                 this.$store.commit(LOADING);
-                axios.get(`/admin/messages-list`).then((response) => {
+                axios.get(`/admin/messages-list`, { params: this.filter }).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
-                    this.list = response.data.data;
+                    this.list = response.data.messages.data;
+                    this.totalMessages = response.data.totalMessages;
+                    this.unreadMessages = response.data.unreadMessages;
+                    this.isLoaded = true;
+                    this.currentPage = response.data.messages.current_page;
+                    this.perPage = response.data.messages.per_page;
+                    this.lastPage = response.data.messages.last_page;
+                    this.total = response.data.messages.total;
                 });
             },
 
@@ -99,9 +141,20 @@
 
             createLink(userId) {
                 return `#/users/${userId}`;
+            },
+
+            changeType(e) {
+                this.filter.type = e.target.value || '';
+                this.fetchMessagesList();
             }
         }
 
 
     };
 </script>
+
+<style>
+    td {
+        padding: 5px;
+    }
+</style>

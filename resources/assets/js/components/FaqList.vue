@@ -171,6 +171,7 @@
 
             editFAQ(id) {
                 axios.get(`/admin/faq/${id}`).then((res) => {
+                    $("html, body").animate({ scrollTop: 0 }, "slow");
                     this.faq = res.data.data;
                     this.edit = true;
                 });
