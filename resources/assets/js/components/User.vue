@@ -8,7 +8,9 @@
                     #id {{ user.vk_id }} <br><br>
                     <img :src="user.photo_100" alt=""><br><br>
                     Есть ли аккаунт на kfcbattle.com: {{ user.has_kfc ? "да" : "нет" }} <br>
-                    Первое сообщение боту: {{ user.created_at | dateConvert }}
+                    Первое сообщение боту: {{ user.created_at | dateConvert }} <br>
+                    Всего сообщений : {{ totalMessages }} <br>
+                    Новых сообщений: {{ unreadMessages }}
                 </div>
             </div>
             <br><br>
@@ -20,16 +22,20 @@
             <br><br>
             <div class="row" v-if="messages.length">
                 <div class="col-md-12">
-                    <table class="table">
+                    <table class="table table-hover">
                         <tr>
                             <td>Сообщение</td>
                             <td>Время</td>
                             <td>От кого</td>
+                            <td>Новое</td>
+                            <td>Тип</td>
                         </tr>
                         <tr v-for="(message, idx) in messages">
                             <td>{{ message.data.body }}</td>
                             <td>{{ message.data.date | dateFormat }}</td>
                             <td>{{ message.data.from == 'admin' ? "Администратор" : "Пользователь" }}</td>
+                            <td>{{ message.is_new ? '+' : '-' }}</td>
+                            <td>{{ message.data.type }}</td>
                         </tr>
                     </table>
                     <br><br>
@@ -77,6 +83,9 @@
                 messages: [],
                 isLoaded: false,
                 message: '',
+
+                totalMessages: 0,
+                unreadMessages: 0,
 
                 currentPage: 1,
                 perPage: null,
@@ -133,6 +142,8 @@
                     this.$store.commit(LOADING_SUCCESS);
                     this.isLoaded = true;
                     this.messages = response.data.messages.data;
+                    this.totalMessages = response.data.totalMessages;
+                    this.unreadMessages = response.data.unreadMessages;
                     this.currentPage = response.data.messages.current_page;
                     this.perPage = response.data.messages.per_page;
                     this.lastPage = response.data.messages.last_page;
@@ -178,6 +189,8 @@
 </script>
 
 <style>
-
-
+    td {
+        padding: 5px;
+        border-bottom: 1px solid #b9b9b9ee;
+    }
 </style>

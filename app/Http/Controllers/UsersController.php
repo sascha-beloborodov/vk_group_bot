@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class UsersController extends AppBaseController
@@ -24,13 +25,20 @@ class UsersController extends AppBaseController
 
     public function usersMessages($id, Request $request)
     {
-        $messages = DB::connection('mongodb')
+        $query = DB::connection('mongodb')
             ->collection('messages')
             ->where('data.user_id', (int)$id)
             ->orWhere('data.to_user_id', (int)$id)
-            ->orderBy('data.date', 'desc')
-            ->paginate($request->get('per_page', self::DEFAULT_PER_PAGE));
+            ->orderBy('data.date', 'desc');
 
+        if ($request->get('type')) {
+            $query = $query->where('data.type', $request->get('type'));
+        }
+        $totalMessages = $query->count();
+        $cloneQuery = clone  $query;
+        $unreadMessages = $cloneQuery->where('unread', 1)->count();
+
+        $messages = $query->paginate($request->get('per_page', self::DEFAULT_PER_PAGE));
 
         $messageItems = $messages->items();
         $ids = [];
@@ -44,13 +52,22 @@ class UsersController extends AppBaseController
             }
         }
 
-        $messages->each(function($item) use ($messageItems) {
+        $swapMessages = $messages->map(function(&$item) use ($messageItems) {
             foreach ($messageItems as $messageItem) {
                 if ((string) $item['_id'] == (string) $messageItem['_id']) {
                     $item['is_new'] = $messageItem['is_new'];
+                    return $item;
                 }
             }
+            return $item;
         });
+
+        $messages = new LengthAwarePaginator(
+            $swapMessages,
+            $messages->total(),
+            $messages->perPage(),
+            $messages->currentPage()
+        );
 
         if (!empty($ids)) {
             DB
@@ -64,7 +81,9 @@ class UsersController extends AppBaseController
 
         return response()
             ->json([
-                'messages' => $messages
+                'messages' => $messages,
+                'totalMessages' => $totalMessages,
+                'unreadMessages' => $unreadMessages,
             ]);
     }
 
