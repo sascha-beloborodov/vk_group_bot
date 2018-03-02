@@ -71,7 +71,7 @@
                 message: '',
                 currentUserId: 0,
                 filter: {
-                    type: ''
+                    type: 'faq'
                 },
 
                 isLoaded: false,

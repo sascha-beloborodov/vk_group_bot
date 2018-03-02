@@ -17,9 +17,21 @@
             <div class="row">
                 <div class="col-md-12">
                     <button class="btn btn-primary" @click="openModal()">Отправить сообщение</button>
+                    <button class="btn btn-danger" @click="clearAttempts()">Очистить попытки FAQ</button>
                 </div>
             </div>
             <br><br>
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="">Тип:</label>
+                        <select name="" id="" v-model="filter.type" class="form-control" @change="changeType">
+                            <option :value="''" selected>Все</option>
+                            <option :value="'faq'">FAQ</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             <div class="row" v-if="messages.length">
                 <div class="col-md-12">
                     <table class="table table-hover">
@@ -75,6 +87,8 @@
     import moment from 'moment';
     import MessageModal from './MessageModal';
     import Pagination from './Pagination';
+//    import toastr from 'toastr';
+    require('toastr');
 
     export default {
         data() {
@@ -93,7 +107,11 @@
                 total: null,
                 chosenPage: null,
                 hasPagination: null,
-                visiblePages: []
+                visiblePages: [],
+
+                filter: {
+                    type: 'faq'
+                }
             }
         },
 
@@ -126,7 +144,6 @@
             fetchUserData() {
                 this.$store.commit(LOADING);
                 axios.get(`/admin/users/${this.$route.params.id}`).then((response) => {
-                    this.$store.commit(LOADING_SUCCESS);
                     this.isLoaded = true;
                     this.user = response.data.user;
                 });
@@ -138,7 +155,7 @@
                 if (query.page === undefined) {
                     query.page = 1;
                 }
-                axios.get(`/admin/users/${this.$route.params.id}/messages?page=${query.page}`).then((response) => {
+                axios.get(`/admin/users/${this.$route.params.id}/messages?page=${query.page}`, { params: this.filter }).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.isLoaded = true;
                     this.messages = response.data.messages.data;
@@ -164,6 +181,17 @@
                     .catch(err => this.$store.commit(LOADING_SUCCESS));
             },
 
+            clearAttempts() {
+                this.$store.commit(LOADING);
+                axios
+                    .post(`/admin/clear-attempts/${this.$route.params.id}`)
+                    .then((response) => {
+                        this.$store.commit(LOADING_SUCCESS);
+                        toastr.success('Теперь пользователь может снова спрашивать', 'Попытки FAQ сброшены')
+                    })
+                    .catch(err => this.$store.commit(LOADING_SUCCESS));
+            },
+
             openModal() {
                 this.$store.commit(MODAL_OPEN);
             },
@@ -172,6 +200,11 @@
                 this.message = '';
                 this.$store.commit(MODAL_CLOSE);
             },
+
+            changeType(e) {
+                this.filter.type = e.target.value || '';
+                this.fetchUserMessages();
+            }
 
         },
 

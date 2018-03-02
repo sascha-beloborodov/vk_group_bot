@@ -101,4 +101,16 @@ class MessagesController extends AppBaseController
         return $this->sendResponse([], 'Message is sent');
     }
 
+    public function clearAttempts($id, Request $request)
+    {
+        return response()->json([
+            'status' => DB
+                    ::connection('mongodb')
+                    ->collection('faq_attempts')
+                    ->where('vk_id', (int) $id)
+                    ->update([
+                        'attempts' => 0
+                    ])
+        ]);
+    }
 }

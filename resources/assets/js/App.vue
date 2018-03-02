@@ -12,6 +12,9 @@
                     <li v-bind:class="{ active: $route.path == '/users' }">
                         <router-link to="/users"><i class="fa fa-home"></i>Пользователи</router-link>
                     </li>
+                    <li v-bind:class="{ active: $route.path == '/notify' }">
+                        <router-link to="/notify"><i class="fa fa-home"></i>Нотификация пользователей</router-link>
+                    </li>
                 </ul>
             </div>
             <div class="container">

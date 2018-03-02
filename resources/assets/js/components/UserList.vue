@@ -2,28 +2,36 @@
     <div class="row show-page-container">
         <div class="col-md-8" v-if="isLoaded">
             <h2>Список пользователей</h2>
-            <table class="table table-hover">
-                <tr>
-                    <td>ID</td>
-                    <td>Имя</td>
-                    <td>Аккаунт KFC</td>
-                    <td>Дата первого сообщения</td>
-                    <td></td>
-                </tr>
-                <tr v-for="(user, idx) in list">
-                    <td>{{ user.vk_id }}</td>
-                    <td>{{ user.first_name }} {{ user.last_name }}</td>
-                    <td>{{ user.has_kfc ? 'да' : 'нет' }}</td>
-                    <td>{{ user.created_at | dateConvert }}</td>
-                    <td><a :href="makeUserUrl(user.vk_id)">Сообщения</a></td>
-                </tr>
-            </table>
-            <pagination
-                    :currentPage="currentPage"
-                    :lastPage="lastPage"
-                    :url="url"
-                    :perPage="perPage"
-                    :total="total"></pagination>
+            <div class="row">
+                <div class="col-md-3">
+
+                </div>
+            </div>
+            <div class="row">
+                <table class="table table-hover">
+                    <tr>
+                        <td>ID</td>
+                        <td>Имя</td>
+                        <td>Аккаунт KFC</td>
+                        <td>Время последнего сообщения</td>
+                        <td>Ожидает ответа</td>
+                    </tr>
+                    <tr v-for="(user, idx) in list" @click="chooseUser(user.vk_id)" :class="{ reached: isLimitReached(user) }">
+                        <td>{{ user.vk_id }}</td>
+                        <td>{{ user.first_name }} {{ user.last_name }}</td>
+                        <td>{{ user.has_kfc ? 'да' : 'нет' }}</td>
+                        <td>{{ user.lastMessage ? user.lastMessage.created_at : '' }}</td>
+                        <td>{{ isLimitReached(user) ? 'Да (' + user.attempts.attempts + ')' : 'Нет' }}</td>
+                    </tr>
+                </table>
+                <pagination
+                        :currentPage="currentPage"
+                        :lastPage="lastPage"
+                        :url="url"
+                        :perPage="perPage"
+                        :total="total"></pagination>
+            </div>
+
         </div>
     </div>
 </template>
@@ -88,6 +96,15 @@
             },
             makeUserUrl(userId) {
                 return `#/users/${userId}`;
+            },
+            isLimitReached(user) {
+                if (!user.attempts) {
+                    return false;
+                }
+                return user.attempts.attempts >= 3;
+            },
+            chooseUser(userVkId) {
+                this.$router.push({ name: 'User', params: { id: userVkId }});
             }
         },
 
@@ -101,3 +118,16 @@
         }
     }
 </script>
+
+<style>
+
+    .reached {
+        background: rgba(231, 43, 40, 0.67);
+    }
+
+    tr:hover {
+        cursor: pointer;
+        background: rgba(194, 194, 194, 0.15);
+    }
+
+</style>

@@ -32,10 +32,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
 	Route::get('messages', 'MessagesController@index')->name('messages.index');
 	Route::get('messages-list', 'MessagesController@getMessages');
 	Route::post('send-message/{userVKId}', 'MessagesController@sendMessage');
+    Route::post('clear-attempts/{id}', 'MessagesController@clearAttempts');
+
+    Route::post('notify', 'NotifyController@notify');
 
 	Route::get('users/{id}', 'UsersController@userById');
 	Route::get('users/{id}/messages', 'UsersController@usersMessages');
 	Route::get('users', 'UsersController@users');
+
+
 });
 
 //Route::get('admin', function () {

@@ -89,10 +89,43 @@ class UsersController extends AppBaseController
 
     public function users(Request $request)
     {
-        $users = DB::connection('mongodb')
+        $query = DB::connection('mongodb')
             ->collection('vk_users')
-            ->orderBy('created_at', 'desc')
-            ->paginate(2);
+            ->orderBy('created_at', -1);
+
+        if ($request->get('type')) {
+            $query = $query->where('data.type', $request->get('type'));
+        }
+
+        $users = $query->paginate($request->get('per_page', 100));
+
+        $userItems = $users->items();
+
+        $swapUser = $users->map(function(&$user) {
+            $user['attempts'] = DB
+                ::connection('mongodb')
+                ->collection('faq_attempts')
+                ->where('vk_id', $user['vk_id'])
+                ->first();
+
+            $user['lastMessage'] = DB
+                ::connection('mongodb')
+                ->collection('messages')
+                ->where('data.user_id', $user['vk_id'])
+                ->orderBy('created_at', -1)
+                ->first();
+
+            return $user;
+        });
+
+        $swapUser = $swapUser->sortByDesc('lastMessage.created_at')->values()->all();
+
+        $users = new LengthAwarePaginator(
+            $swapUser,
+            $users->total(),
+            $users->perPage(),
+            $users->currentPage()
+        );
 
         return response()
             ->json([
