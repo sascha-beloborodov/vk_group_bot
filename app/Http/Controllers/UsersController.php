@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 
 class UsersController extends AppBaseController
 {
+    use Helper;
+
     const DEFAULT_PER_PAGE = 100;
 
     public function userById($id, Request $request)
@@ -42,15 +44,8 @@ class UsersController extends AppBaseController
 
         $messageItems = $messages->items();
         $ids = [];
-        foreach ($messageItems as &$messageItem) {
-            if ($messageItem['unread'] == 1) {
-                $_id = $messageItem['_id'];
-                $ids[] = (string) $_id;
-                $messageItem['is_new'] = 1;
-            } else {
-                $messageItem['is_new'] = 0;
-            }
-        }
+
+        $this->markNewestMessages($messageItems);
 
         $swapMessages = $messages->map(function(&$item) use ($messageItems) {
             foreach ($messageItems as $messageItem) {

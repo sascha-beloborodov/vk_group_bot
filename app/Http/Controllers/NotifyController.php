@@ -31,10 +31,11 @@ class NotifyController extends AppBaseController
             'created_at_utc' => Carbon::now(new \DateTimeZone('utc'))->format('Y-m-d H:i:s'),
             'text' => $request->get('text', ''),
             'sent' => 0,
+            'is_working' => 0,
             'queued' => 1,
             'totalRecipients' => $recipientsCount,
             'successRecipients' => 0
         ]);
-        MassNotice::dispatch($insertedId)->delay(now()->addMinutes(15));
+        MassNotice::dispatch($insertedId)->delay(now()->addSecond(5));
     }
 }

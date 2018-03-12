@@ -7,6 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class MassNotice implements ShouldQueue
@@ -35,6 +36,51 @@ class MassNotice implements ShouldQueue
     public function handle()
     {
         Log::useFiles(storage_path().'/logs/notification.log');
-        Log::info('Handle. Notification ID - ' . $this->notificationId);
+        $offset = 0;
+        $limit = 5;
+        $recipients = DB
+            ::connection('mongodb')
+            ->collection('subscribers')
+            ->distinct('vk_id')
+            ->offset($offset)
+            ->limit($limit)
+            ->get();
+
+        while ($recipients) {
+            $notice = DB::connection('mongodb')->collection('moment_notifications')->where('_id', $this->notificationId)->first();
+            Log::info($notice);
+            Log::info($recipients);
+            die;
+            foreach ($recipients as $recipient) {
+                vkApi_messagesSend($recipient['vk_id'], $notice['text']);
+            }
+            sleep(1);
+            $offset += 5;
+            DB::connection('mongodb')
+                ->collection('moment_notifications')
+                ->where(['_id' => $this->notificationId])
+                ->update([
+                    'successRecipients' =>  $notice['successRecipients'] + $recipients->count(),
+                    'is_working' => 1
+                ]);
+
+            $recipients = DB
+                ::connection('mongodb')
+                ->collection('subscribers')
+                ->distinct('vk_id')
+                ->offset($offset)
+                ->limit($limit)
+                ->get();
+        }
+
+        DB::connection('mongodb')
+            ->collection('moment_notifications')
+            ->where(['_id' => $this->notificationId])
+            ->update([
+                'successRecipients' =>  $notice['successRecipients'] + $recipients->count(),
+                'is_working' => 1,
+                'sent' => 1,
+                'queued' => 0,
+            ]);
     }
 }
