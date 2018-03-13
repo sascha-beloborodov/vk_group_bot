@@ -35,6 +35,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
     Route::post('clear-attempts/{id}', 'MessagesController@clearAttempts');
 
     Route::post('notify', 'NotifyController@notify');
+    Route::get('cities', 'NotifyController@cities');
+    Route::get('notifications', 'NotifyController@notifications');
 
 	Route::get('users/{id}', 'UsersController@userById');
 	Route::get('users/{id}/messages', 'UsersController@usersMessages');

@@ -19,6 +19,22 @@ class NotifyController extends AppBaseController
 {
     const DEFAULT_PER_PAGE = 100;
 
+    public function cities(Request $request)
+    {
+        return response()->json(
+           DB::connection('mongodb')->collection('subscribers')->distinct('city')->get()
+        );
+    }
+
+    public function notifications(Request $request)
+    {
+        $notifications = DB::connection('mongodb')
+            ->collection('moment_notifications')
+            ->orderBy('created_at', -1)
+            ->paginate($request->get('per_page', 20));
+        return response()->json($notifications);
+    }
+
     public function notify(Request $request)
     {
         $recipientsCount = DB
@@ -30,12 +46,13 @@ class NotifyController extends AppBaseController
             'created_at' => Carbon::now(new \DateTimeZone('Europe/Moscow'))->format('Y-m-d H:i:s'),
             'created_at_utc' => Carbon::now(new \DateTimeZone('utc'))->format('Y-m-d H:i:s'),
             'text' => $request->get('text', ''),
+            'city' => $request->get('city', ''),
             'sent' => 0,
             'is_working' => 0,
             'queued' => 1,
             'totalRecipients' => $recipientsCount,
             'successRecipients' => 0
         ]);
-        MassNotice::dispatch($insertedId)->delay(now()->addSecond(5));
+        MassNotice::dispatch($insertedId, $request->get('city', 'новороссийск'))->delay(now()->addSecond(100));
     }
 }

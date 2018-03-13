@@ -15,17 +15,19 @@ class MassNotice implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $notificationId;
+    public $city;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($notificationId)
+    public function __construct($notificationId, $city)
     {
         Log::useFiles(storage_path().'/logs/notification.log');
         Log::info('Notification ID - ' . $notificationId);
         $this->notificationId = $notificationId;
+        $this->city = $city;
     }
 
     /**
@@ -38,19 +40,19 @@ class MassNotice implements ShouldQueue
         Log::useFiles(storage_path().'/logs/notification.log');
         $offset = 0;
         $limit = 5;
+
         $recipients = DB
             ::connection('mongodb')
             ->collection('subscribers')
-            ->distinct('vk_id')
-            ->offset($offset)
-            ->limit($limit)
+            ->where('city', $this->city)
+//            ->distinct('vk_id')
+            ->skip($offset)
+            ->take($limit)
             ->get();
 
-        while ($recipients) {
+        $notice = null;
+        while (count($recipients)) {
             $notice = DB::connection('mongodb')->collection('moment_notifications')->where('_id', $this->notificationId)->first();
-            Log::info($notice);
-            Log::info($recipients);
-            die;
             foreach ($recipients as $recipient) {
                 vkApi_messagesSend($recipient['vk_id'], $notice['text']);
             }
@@ -60,16 +62,17 @@ class MassNotice implements ShouldQueue
                 ->collection('moment_notifications')
                 ->where(['_id' => $this->notificationId])
                 ->update([
-                    'successRecipients' =>  $notice['successRecipients'] + $recipients->count(),
+                    'successRecipients' =>  $notice['successRecipients'] + count($recipients),
                     'is_working' => 1
                 ]);
 
             $recipients = DB
                 ::connection('mongodb')
                 ->collection('subscribers')
-                ->distinct('vk_id')
-                ->offset($offset)
-                ->limit($limit)
+                ->where('city', $this->city)
+//                ->distinct('vk_id')
+                ->skip($offset)
+                ->take($limit)
                 ->get();
         }
 
@@ -77,7 +80,7 @@ class MassNotice implements ShouldQueue
             ->collection('moment_notifications')
             ->where(['_id' => $this->notificationId])
             ->update([
-                'successRecipients' =>  $notice['successRecipients'] + $recipients->count(),
+                'successRecipients' =>  $notice['successRecipients'] ?? 0 + count($recipients),
                 'is_working' => 1,
                 'sent' => 1,
                 'queued' => 0,
