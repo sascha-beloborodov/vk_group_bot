@@ -11,6 +11,7 @@ class UsersController extends AppBaseController
     use Helper;
 
     const DEFAULT_PER_PAGE = 100;
+    const SECTION_SUBSCRIBERS = 'subscribers';
 
     public function userById($id, Request $request)
     {
@@ -88,15 +89,13 @@ class UsersController extends AppBaseController
             ->collection('vk_users')
             ->orderBy('created_at', -1);
 
-        if ($request->get('type')) {
-            $query = $query->where('data.type', $request->get('type'));
-        }
+        $type = $request->get('type');
 
-        $users = $query->paginate($request->get('per_page', 100));
+        $users = $query->paginate($request->get('per_page', 50));
 
         $userItems = $users->items();
 
-        $swapUser = $users->map(function(&$user) {
+        $swapUser = $users->map(function(&$user) use ($type) {
             $user['attempts'] = DB
                 ::connection('mongodb')
                 ->collection('faq_attempts')
@@ -109,6 +108,15 @@ class UsersController extends AppBaseController
                 ->where('data.user_id', $user['vk_id'])
                 ->orderBy('created_at', -1)
                 ->first();
+
+            if ($type == self::SECTION_SUBSCRIBERS) {
+                $user['subs'] = DB
+                    ::connection('mongodb')
+                    ->collection('subscribers')
+                    ->where('vk_id', $user['vk_id'])
+                    ->orderBy('created_at', -1)
+                    ->get();
+            }
 
             return $user;
         });

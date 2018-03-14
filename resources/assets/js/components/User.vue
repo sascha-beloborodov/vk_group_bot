@@ -44,7 +44,7 @@
                         </tr>
                         <tr v-for="(message, idx) in messages">
                             <td>{{ message.data.body }}</td>
-                            <td>{{ message.data.date | dateFormat }}</td>
+                            <td>{{ message.data.date | frotTimeStamp }}</td>
                             <td>{{ message.data.from == 'admin' ? "Администратор" : "Пользователь" }}</td>
                             <td>{{ message.is_new ? '+' : '-' }}</td>
                             <td>{{ message.data.type }}</td>
@@ -105,9 +105,6 @@
                 perPage: null,
                 lastPage: null,
                 total: null,
-                chosenPage: null,
-                hasPagination: null,
-                visiblePages: [],
 
                 filter: {
                     type: 'faq'
@@ -209,7 +206,7 @@
         },
 
         filters: {
-            dateFormat(value) {
+            frotTimeStamp(value) {
                 return moment.unix(value).format('DD.MM.YYYY HH:mm:ss');
             },
             dateConvert(value) {

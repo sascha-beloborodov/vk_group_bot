@@ -4,7 +4,12 @@
             <h2>Список пользователей</h2>
             <div class="row">
                 <div class="col-md-3">
-
+                    <div class="form-group">
+                        <label for="">Раздел:</label>
+                        <select class="form-control" name="" id="" v-model="filter.currentSection" @change="changeSection">
+                            <option :value="section" v-for="section in filter.types">{{typesMap[section]}}</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -15,6 +20,7 @@
                         <td>Аккаунт KFC</td>
                         <td>Время последнего сообщения</td>
                         <td>Ожидает ответа</td>
+                        <td v-if="filter.currentSection == 'subscribers'">Подписки на города</td>
                     </tr>
                     <tr v-for="(user, idx) in list" @click="chooseUser(user.vk_id)" :class="{ reached: isLimitReached(user) }">
                         <td>{{ user.vk_id }}</td>
@@ -22,6 +28,13 @@
                         <td>{{ user.has_kfc ? 'да' : 'нет' }}</td>
                         <td>{{ user.lastMessage ? user.lastMessage.created_at : '' }}</td>
                         <td>{{ isLimitReached(user) ? 'Да (' + user.attempts.attempts + ')' : 'Нет' }}</td>
+                        <td v-if="user.subs">
+                            <ul>
+                                <li v-for="subscribe in user.subs">
+                                    {{ subscribe.city }}
+                                </li>
+                            </ul>
+                        </td>
                     </tr>
                 </table>
                 <pagination
@@ -48,6 +61,8 @@
     import MessageModal from './MessageModal';
     import Pagination from './Pagination';
 
+
+
     export default {
 
         data () {
@@ -58,6 +73,17 @@
                 perPage: null,
                 lastPage: null,
                 total: null,
+                filter: {
+                    currentSection: 'all',
+                    types: [
+                        'all',
+                        'subscribers'
+                    ]
+                },
+                typesMap: {
+                    'all': 'Все',
+                    'subscribers': 'Подписчики'
+                }
             }
         },
 
@@ -76,6 +102,12 @@
             }
         },
 
+        watch: {
+            $route() {
+                this.fetchList();
+            }
+        },
+
         methods: {
             fetchList() {
                 this.$store.commit(LOADING);
@@ -84,7 +116,8 @@
                 if (query.page === undefined) {
                     query.page = 1;
                 }
-                axios.get(`/admin/users?page=${query.page}`).then((response) => {
+                axios.get(`/admin/users?page=${query.page}&type=${this.filter.currentSection}`).then((response) => {
+                    debugger;
                     this.$store.commit(LOADING_SUCCESS);
                     this.isLoaded = true;
                     this.list = response.data.users.data;
@@ -93,6 +126,9 @@
                     this.lastPage = response.data.users.last_page;
                     this.total = response.data.users.total;
                 }).catch(error => { this.$store.commit(LOADING_SUCCESS); });
+            },
+            changeSection() {
+                this.fetchList();
             },
             makeUserUrl(userId) {
                 return `#/users/${userId}`;
@@ -120,7 +156,6 @@
 </script>
 
 <style>
-
     .reached {
         background: rgba(231, 43, 40, 0.67);
     }

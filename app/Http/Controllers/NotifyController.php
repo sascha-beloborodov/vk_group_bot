@@ -26,6 +26,14 @@ class NotifyController extends AppBaseController
         );
     }
 
+    public function usersCount(Request $request)
+    {
+        $count = $request->get('city') ?
+            DB::connection('mongodb')->collection('subscribers')->where('city', $request->get('city'))->count() :
+            0;
+        return response()->json($count);
+    }
+
     public function notifications(Request $request)
     {
         $notifications = DB::connection('mongodb')

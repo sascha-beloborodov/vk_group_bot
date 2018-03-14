@@ -1,5 +1,6 @@
 require('./bootstrap');
 
+require('vue-toastr/src/vue-toastr.less');
 // window.Vue = require('vue');
 
 // import Vue from 'vue';
@@ -34,6 +35,9 @@ import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
 import store from './store';
+import Toastr from 'vue-toastr';
+
+Vue.use(Toastr);
 
 new Vue({
     el: '#app',
@@ -41,4 +45,4 @@ new Vue({
     store,
     template: '<App/>',
     components: { App }
-})
+});
