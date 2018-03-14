@@ -117,7 +117,6 @@
                     query.page = 1;
                 }
                 axios.get(`/admin/users?page=${query.page}&type=${this.filter.currentSection}`).then((response) => {
-                    debugger;
                     this.$store.commit(LOADING_SUCCESS);
                     this.isLoaded = true;
                     this.list = response.data.users.data;
