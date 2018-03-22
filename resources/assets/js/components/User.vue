@@ -119,8 +119,6 @@
         },
 
         created() {
-            console.log(123);
-
             this.fetchUserData();
             this.fetchUserMessages();
         },
