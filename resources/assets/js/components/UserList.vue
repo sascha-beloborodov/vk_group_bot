@@ -1,6 +1,7 @@
 <template>
     <div class="row show-page-container">
-        <div class="col-md-8" v-if="isLoaded">
+        <router-view></router-view>
+        <div class="col-md-8" v-if="isLoaded && !$route.params.id" >
             <h2>Список пользователей</h2>
             <div class="row">
                 <div class="col-md-3">
@@ -61,8 +62,6 @@
     import MessageModal from './MessageModal';
     import Pagination from './Pagination';
 
-
-
     export default {
 
         data () {
@@ -93,7 +92,7 @@
         },
 
         created() {
-            this.fetchList();
+          this.fetchList();
         },
 
         computed: {
@@ -139,7 +138,7 @@
                 return user.attempts.attempts >= 3;
             },
             chooseUser(userVkId) {
-                this.$router.push({ name: 'User', params: { id: userVkId }});
+              this.$router.push({ name: 'User', params: { id: userVkId }});
             }
         },
 

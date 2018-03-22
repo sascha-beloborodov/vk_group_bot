@@ -1,6 +1,6 @@
 <template>
     <div class='row show-page-container'>
-        <div class="col-md-8" v-if="isLoaded">
+        <div class="col-md-8" v-if="isLoaded && user">
             <h1>Пользователь <br>{{ user.first_name }} {{ user.last_name }}</h1>
 
             <div class="row">
@@ -81,7 +81,8 @@
         LOADING_SUCCESS,
         LOADING,
         MODAL_OPEN,
-        MODAL_CLOSE
+        MODAL_CLOSE,
+        SET_ACTIVEUSER
     } from '../store/mutation-types';
 
     import moment from 'moment';
@@ -118,6 +119,8 @@
         },
 
         created() {
+            console.log(123);
+
             this.fetchUserData();
             this.fetchUserMessages();
         },
@@ -143,6 +146,8 @@
                 axios.get(`/admin/users/${this.$route.params.id}`).then((response) => {
                     this.isLoaded = true;
                     this.user = response.data.user;
+
+                    this.$store.commit(SET_ACTIVEUSER, this.user);
                 });
             },
 

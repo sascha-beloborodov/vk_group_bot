@@ -31,7 +31,8 @@
 
         <nav>
             <div class="container">
-                <ul class="nav nav-tabs">
+              <bread-crumbs></bread-crumbs>
+                <!-- <ul class="nav nav-tabs">
                     <li v-bind:class="{ active: $route.path == '/messages-list' }">
                         <router-link to="/messages-list"><i class="fa fa-home"></i>Сообщения</router-link>
                     </li>
@@ -44,7 +45,7 @@
                     <li v-bind:class="{ active: $route.path == '/notify' }">
                         <router-link to="/notify"><i class="fa fa-home"></i>Нотификация пользователей</router-link>
                     </li>
-                </ul>
+                </ul> -->
             </div>
         </nav>
 
@@ -71,7 +72,9 @@
     import {
         LOADING_SUCCESS,
         LOADING
-    } from './store/mutation-types'
+    } from './store/mutation-types';
+
+    import BreadCrumbs from './components/BreadCrumbs';
 
     export default {
         name: 'app',
@@ -80,6 +83,9 @@
 
 //                cartItems: this.$store.state.cart
             }
+        },
+        components: {
+          'bread-crumbs': BreadCrumbs
         },
 //        created () {
 //            this.$store.subscribe((mutation) => {
