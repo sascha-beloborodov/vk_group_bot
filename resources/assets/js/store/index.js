@@ -10,9 +10,13 @@ export default new Vuex.Store({
     strict: true,
     state: {
         showLoader: false,
-        showModal: false
+        showModal: false,
+        activeUser: {
+          id: null,
+          name: null
+        }
     },
-    mutations: Object.assign({}, mutations),
+    mutations: Object.assign({}, mutations)
     // getters: Object.assign({}, productGetters, manufacturerGetters),
     // actions: Object.assign({}, productActions, manufacturerActions)
 })
