@@ -7,3 +7,5 @@ export const MODAL_CLOSE = 'MODAL_CLOSE';
 
 export const ERROR_MSG = 'ERROR_MSG';
 export const SUCCESS_MSG = 'SUCCESS_MSG';
+
+export const SET_ACTIVEUSER = 'SET_ACTIVEUSER';

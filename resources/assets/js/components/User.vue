@@ -1,6 +1,6 @@
 <template>
     <div class='row show-page-container'>
-        <div class="col-md-8" v-if="isLoaded">
+        <div class="col-md-8" v-if="isLoaded && user">
             <h1>Пользователь <br>{{ user.first_name }} {{ user.last_name }}</h1>
 
             <div class="row">
@@ -44,7 +44,7 @@
                         </tr>
                         <tr v-for="(message, idx) in messages">
                             <td>{{ message.data.body }}</td>
-                            <td>{{ message.data.date | dateFormat }}</td>
+                            <td>{{ message.data.date | frotTimeStamp }}</td>
                             <td>{{ message.data.from == 'admin' ? "Администратор" : "Пользователь" }}</td>
                             <td>{{ message.is_new ? '+' : '-' }}</td>
                             <td>{{ message.data.type }}</td>
@@ -81,7 +81,8 @@
         LOADING_SUCCESS,
         LOADING,
         MODAL_OPEN,
-        MODAL_CLOSE
+        MODAL_CLOSE,
+        SET_ACTIVEUSER
     } from '../store/mutation-types';
 
     import moment from 'moment';
@@ -105,9 +106,6 @@
                 perPage: null,
                 lastPage: null,
                 total: null,
-                chosenPage: null,
-                hasPagination: null,
-                visiblePages: [],
 
                 filter: {
                     type: 'faq'
@@ -146,6 +144,8 @@
                 axios.get(`/admin/users/${this.$route.params.id}`).then((response) => {
                     this.isLoaded = true;
                     this.user = response.data.user;
+
+                    this.$store.commit(SET_ACTIVEUSER, this.user);
                 });
             },
 
@@ -209,7 +209,7 @@
         },
 
         filters: {
-            dateFormat(value) {
+            frotTimeStamp(value) {
                 return moment.unix(value).format('DD.MM.YYYY HH:mm:ss');
             },
             dateConvert(value) {

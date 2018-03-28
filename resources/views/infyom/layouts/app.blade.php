@@ -30,6 +30,7 @@
     @yield('css')
 
     <link rel="stylesheet" href="{{asset('css/app.css')}}">
+    <link rel="stylesheet" href="{{asset('css/appl.css')}}">
 </head>
 
 <body class="skin-red-light sidebar-mini">
@@ -46,7 +47,7 @@
             <!-- Header Navbar -->
             <nav class="navbar navbar-static-top" role="navigation">
                 <!-- Sidebar toggle button-->
-                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                <a href="javascript:void(0)" class="sidebar-toggle" data-toggle="offcanvas" role="button">
                     <span class="sr-only">Toggle navigation</span>
                 </a>
                 <!-- Navbar Right Menu -->
@@ -95,7 +96,7 @@
         </header>
 
         <!-- Left side column. contains the logo and sidebar -->
-        @include('infyom.layouts.sidebar')
+{{--        @include('infyom.layouts.sidebar')--}}
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
             @yield('content')

@@ -5,9 +5,9 @@ import {
     SUCCESS_MSG,
     ERROR_MSG,
     MODAL_OPEN,
-    MODAL_CLOSE
+    MODAL_CLOSE,
+    SET_ACTIVEUSER
 } from './mutation-types'
-
 
 export const mutations = {
     [LOADING] (state) {
@@ -22,4 +22,10 @@ export const mutations = {
     [MODAL_CLOSE] (state, payload) {
         state.showModal = false;
     },
+    [SET_ACTIVEUSER] (state, payload) {
+        state.activeUser = {
+          id: payload.vk_id,
+          name: `${payload.first_name} ${payload.last_name}`
+        };
+    }
 };

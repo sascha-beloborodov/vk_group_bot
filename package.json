@@ -17,6 +17,8 @@
         "cross-env": "^5.1",
         "jquery": "^3.2",
         "laravel-mix": "^1.0",
+        "less": "^3.0.1",
+        "less-loader": "^4.1.0",
         "lodash": "^4.17.4",
         "vue": "^2.5.7"
     },
@@ -25,6 +27,7 @@
         "toastr": "^2.1.4",
         "vee-validate": "^2.0.3",
         "vue-router": "^3.0.1",
+        "vue-toastr": "^2.0.12",
         "vuex": "^3.0.1"
     }
 }

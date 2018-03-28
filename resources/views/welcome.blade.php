@@ -81,7 +81,8 @@
                 <div class="title m-b-md">
                     Laravel
                 </div>
-
+                {{ \Illuminate\Support\Facades\URL::current() }}
+                {{ strpos(url()->current(), 'firma-meridian') !== false ? '6LevpzgUAAAAAJlH7W-YQhfsumsv8aQa7HJLjL0O' : '6Ldo60oUAAAAALZHg4WSWmxBSdFu1sURnyLbzWR3' }}
                 <div class="links">
                     <a href="https://laravel.com/docs">Documentation</a>
                     <a href="https://laracasts.com">Laracasts</a>
