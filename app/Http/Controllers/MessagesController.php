@@ -90,17 +90,18 @@ class MessagesController extends AppBaseController
         if (empty($request->get('text'))) {
             return $this->sendError('Message is empty', 422);
         }
+        $message = "Ответ модератора: \n" . $request->get('text');
         DB::connection('mongodb')->collection('messages')->insert([
             'created_at' => Carbon::now(new \DateTimeZone('Europe/Moscow'))->format('Y-m-d H:i:s'),
             'created_at_utc' => Carbon::now(new \DateTimeZone('utc'))->format('Y-m-d H:i:s'),
             'data' => [
-                'body' => "Ответ модератора: \n" . $request->get('text'),
+                'body' => $message,
                 'from' => 'admin',
                 'date' => time(),
                 'to_user_id' => (int) $userVKId
             ]
         ]);
-        vkApi_messagesSend($userVKId, $request->get('text', 'Test'));
+        vkApi_messagesSend($userVKId, $message);
         return $this->sendResponse([], 'Message is sent');
     }
 
