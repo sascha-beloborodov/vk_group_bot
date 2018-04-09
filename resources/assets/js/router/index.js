@@ -5,6 +5,8 @@ import MessagesList from './messages';
 import FaqList from './faq';
 import { usersList } from "./users";
 import Notify from "./notify";
+import {photoList} from "./photos";
+import {festList} from "./fests";
 
 Vue.use(Router);
 
@@ -13,6 +15,8 @@ export default new Router({
         MessagesList,
         FaqList,
         usersList,
+        photoList,
+        festList,
         Notify
     ]
 });

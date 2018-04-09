@@ -5,8 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-class NotifyFest extends Command
-{
+class NotifyFest extends Command {
     /**
      * The name and signature of the console command.
      *
@@ -26,8 +25,7 @@ class NotifyFest extends Command
      *
      * @return void
      */
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
     }
 
@@ -36,27 +34,27 @@ class NotifyFest extends Command
      *
      * @return mixed
      */
-    public function handle()
-    {
-        $usersOffset = 0;
-        $usersLimit = 10;
+    public function handle() {
         // get tomorrow fests
-        $tomorrowFests = DB::connection('mongodb')->collection('fests')->where('date',  (new \DateTime('tomorrow'))->format('Y-m-d'))->get();
+        $tomorrowFests = DB::connection('mongodb')->collection('fests')->where('date', (new \DateTime('tomorrow'))->format('Y-m-d'))->get();
 
         foreach ($tomorrowFests as $tomorrowFest) {
+            $usersOffset = 0;
+            $usersLimit = 10;
             $subscribedUsers = $this->subscribedUsers($tomorrowFest['name'], $usersLimit, $usersOffset);
 
             // will handle by parts
-            while(count($subscribedUsers)) {
+            while (count($subscribedUsers)) {
 
                 foreach ($subscribedUsers as $subscribedUser) {
                     $activities = $this->usersActivities($subscribedUser['vk_id']);
+                    $message = "Завтра фестиваль. Ты записан на следующие активности:\n";
                     foreach ($activities as $activity) {
-                        vkApi_messagesSend($activity['vk_id'], 'Завтра фестиваль. Ты записан на активность - ' . $activity['name']);
-                        sleep(2);
+                        $message .= " - " . $activity['name'] . "\n";
                     }
+                    vkApi_messagesSend($activity['vk_id'], $message);
+                    sleep(2);
                 }
-
                 $usersOffset += 10;
                 $subscribedUsers = $this->subscribedUsers($tomorrowFest['name'], $usersLimit, $usersOffset);
             }
@@ -71,8 +69,7 @@ class NotifyFest extends Command
      * @param $offset
      * @return mixed
      */
-    private function subscribedUsers($city, $limit, $offset)
-    {
+    private function subscribedUsers($city, $limit, $offset) {
         return DB::connection('mongodb')
             ->collection('subscribers')
             ->where('city', $city)
@@ -87,8 +84,7 @@ class NotifyFest extends Command
      * @param $userId
      * @return mixed
      */
-    private function usersActivities($userId)
-    {
+    private function usersActivities($userId) {
         return DB::connection('mongodb')
             ->collection('activities')
             ->where('vk_id', $userId)

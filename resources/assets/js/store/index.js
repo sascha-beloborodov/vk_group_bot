@@ -17,6 +17,4 @@ export default new Vuex.Store({
         }
     },
     mutations: Object.assign({}, mutations)
-    // getters: Object.assign({}, productGetters, manufacturerGetters),
-    // actions: Object.assign({}, productActions, manufacturerActions)
 })
