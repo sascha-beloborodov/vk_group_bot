@@ -3,7 +3,7 @@
 </template>
 
 <script>
-    import Photo from '../components/Photo'
+    import Photo from '../components/photos/Photo'
     export default {
         data () {
             return {

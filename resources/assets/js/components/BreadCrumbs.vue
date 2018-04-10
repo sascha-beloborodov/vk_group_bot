@@ -1,6 +1,7 @@
 <template>
   <div class="breadcrumbs">
     <ul class="breadcrumbs__list">
+      <li><router-link to="/">Главная</router-link></li>
       <li v-for="(route, index) in $route.matched">
         <router-link :to="{ name: route.name, params: {} }">
           {{

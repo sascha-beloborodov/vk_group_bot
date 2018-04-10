@@ -22,6 +22,15 @@
                 <li v-bind:class="{ active: $route.path == '/notify' }">
                     <router-link to="/notify"><i class="fa fa-home"></i>Нотификация пользователей</router-link>
                 </li>
+
+                <li v-bind:class="{ active: $route.path == '/photos' }">
+                    <router-link to="/photos"><i class="fa fa-home"></i>Фотоконкурс</router-link>
+                </li>
+
+                <li v-bind:class="{ active: $route.path == '/fests' }">
+                    <router-link to="/fests"><i class="fa fa-home"></i>Фестивали</router-link>
+                </li>
+
             </ul>
             <!-- /.sidebar-menu -->
         </section>
