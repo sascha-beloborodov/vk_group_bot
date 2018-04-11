@@ -26,4 +26,46 @@ class FestController extends AppBaseController
         return DB::connection('mongodb')->collection('fests')->get();
     }
 
+    public function fest($id, Request $request)
+    {
+        return DB::connection('mongodb')
+            ->collection('fests')
+            ->where('_id', $id)
+            ->first();
+    }
+
+    public function create(Request $request)
+    {
+        try {
+            DB::connection('mongodb')->collection('fests')->insert([
+                'created_at' => Carbon::now(new \DateTimeZone('Europe/Moscow'))->format('Y-m-d H:i:s'),
+                'created_at_utc' => Carbon::now(new \DateTimeZone('utc'))->format('Y-m-d H:i:s'),
+                'id' => $request->get('id'),
+                'date' => $request->get('date'),
+                'name' => $request->get('name')
+            ]);
+            return $this->sendResponse(['success' => true], 'Success');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function edit($id, Request $request)
+    {
+        try {
+            DB
+                ::connection('mongodb')
+                ->collection('fests')
+                ->where('_id', $id)
+                ->update([
+                    'id' => $request->get('id'),
+                    'name' => $request->get('name'),
+                    'date' => $request->get('date')
+                ]);
+            return $this->sendResponse(['success' => true], 'Success');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
 }

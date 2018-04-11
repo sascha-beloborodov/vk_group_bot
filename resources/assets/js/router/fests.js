@@ -1,5 +1,6 @@
-import Fest from '../pages/Fest';
-import FestList from '../pages/FestList';
+import Fest from '../components/fests/Fest';
+import FestList from '../components/fests/FestList';
+import FestAdd from '../components/fests/FestAdd.vue';
 
 export const festList = {
     path: '/fests/',
@@ -9,6 +10,16 @@ export const festList = {
         breadcrumb: 'Фестивали',
     },
     children: [
+        {
+            path: 'add',
+            name: 'FestAdd',
+            component: FestAdd,
+            meta: {
+                isListHidden: true,
+                dynamic: true,
+                breadcrumb: () => 'Добавить фестиваль'
+            }
+        },
         {
             path: ':id',
             name: 'Fest',

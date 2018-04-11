@@ -51,7 +51,7 @@ class PhotoController extends AppBaseController
             DB
                 ::connection('mongodb')
                 ->collection('photos')
-                ->whereIn('_id', $id)
+                ->where('_id', $id)
                 ->update([
                     'city_id' => $request->get('id'),
                     'city' => $request->get('city'),

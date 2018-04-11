@@ -17,6 +17,9 @@
                         <td></td>
                      </tr>
                 </table>
+
+                <router-link :to="{ name: 'PhotoAdd' }">Добавить идентификатор</router-link>
+
                 <pagination
                         :currentPage="currentPage"
                         :lastPage="lastPage"

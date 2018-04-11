@@ -44,8 +44,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
 	Route::get('users', 'UsersController@users');
 
     Route::get('fests', 'FestController@festLIst');
-//    Route::get('fests/{id}', 'FestController@fest');
     Route::get('fests/all', 'FestController@all');
+    Route::put('fests', 'FestController@create');
+    Route::post('fests/{id}', 'FestController@edit');
+    Route::get('fests/{id}', 'FestController@fest');
 
     Route::get('photos', 'PhotoController@photos');
     Route::put('photos', 'PhotoController@create');
