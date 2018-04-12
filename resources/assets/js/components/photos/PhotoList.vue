@@ -18,7 +18,7 @@
                      </tr>
                 </table>
 
-                <router-link :to="{ name: 'PhotoAdd' }">Добавить идентификатор</router-link>
+                <router-link :class="{btn: true, ['btn-primary']: true}" :to="{ name: 'PhotoAdd' }">Добавить идентификатор</router-link>
 
                 <pagination
                         :currentPage="currentPage"
