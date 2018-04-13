@@ -15,19 +15,19 @@ class MassNotice implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $notificationId;
-    public $city;
+    public $cityId;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($notificationId, $city)
+    public function __construct($notificationId, $cityId)
     {
         Log::useFiles(storage_path().'/logs/notification.log');
         Log::info('Notification ID - ' . $notificationId);
         $this->notificationId = $notificationId;
-        $this->city = $city;
+        $this->cityId = $cityId;
     }
 
     /**
@@ -44,8 +44,7 @@ class MassNotice implements ShouldQueue
         $recipients = DB
             ::connection('mongodb')
             ->collection('subscribers')
-            ->where('city', $this->city)
-//            ->distinct('vk_id')
+            ->where('city_id', (int) $this->cityId)
             ->skip($offset)
             ->take($limit)
             ->get();
@@ -55,6 +54,7 @@ class MassNotice implements ShouldQueue
             $notice = DB::connection('mongodb')->collection('moment_notifications')->where('_id', $this->notificationId)->first();
             foreach ($recipients as $recipient) {
                 vkApi_messagesSend($recipient['vk_id'], $notice['text']);
+                sleep(1);
             }
             sleep(1);
             $offset += 5;
@@ -69,8 +69,7 @@ class MassNotice implements ShouldQueue
             $recipients = DB
                 ::connection('mongodb')
                 ->collection('subscribers')
-                ->where('city', $this->city)
-//                ->distinct('vk_id')
+                ->where('city_id', $this->cityId)
                 ->skip($offset)
                 ->take($limit)
                 ->get();

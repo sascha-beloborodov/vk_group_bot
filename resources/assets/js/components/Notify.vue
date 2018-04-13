@@ -14,10 +14,10 @@
                 <div class="col-md-8">
                     <div class="form-group">
                         <label for="">Выберите город:</label>
-                        <select name="" id="" class="form-control" v-model="currentCity" @change="setUsersCount()">
+                        <select name="" id="" class="form-control" v-model="currentCityId" @change="setUsersCount()">
                             <option
-                                    :value="city"
-                                    v-for="city in cities">{{city}}</option>
+                                    :value="city.city_id"
+                                    v-for="city in cities">{{city.city.toUpperCase()}}</option>
                         </select>
                     </div>
                 </div>
@@ -67,7 +67,7 @@
                 </div>
                 <div slot="body">
                     <div>
-                        Вы действительно хотите уведомить {{usersCount}} пользователей из для города - {{currentCity}}
+                        Вы действительно хотите уведомить {{usersCount}} пользователей из для города - {{currentCityId}}
                     </div>
                     <div class="error" v-if="error">
                         Вы не выбрали город или нет сообщения
@@ -101,7 +101,7 @@
                 text: '',
                 isLoaded: false,
                 cities: [],
-                currentCity: '',
+                currentCityId: '',
                 error: false,
                 usersCount: 0,
                 notifications: [],
@@ -154,15 +154,15 @@
                 });
             },
             notify() {
-                if (!this.currentCity || !this.text.length) {
+                if (!this.currentCityId || !this.text.length) {
                     this.$toastr.e("Вы не ввели сообщение или город")
                 } else {
                     this.error = false;
-                    axios.post('/admin/notify', { text: this.text }).then((response) => {
+                    axios.post('/admin/notify', { text: this.text, cityId: this.currentCityId }).then((response) => {
                         this.closeModal();
                         this.$toastr.s("Сообщения начитнают рассылаться");
                         this.text = '';
-                        this.currentCity = '';
+                        this.currentCityId = '';
                         this.fetchData();
                     }).catch(error => this.$toastr.e("Произошла ошибка"));
                 }
@@ -181,7 +181,7 @@
 
             setUsersCount() {
                 this.$store.commit(LOADING);
-                axios.get(`/admin/usersCount?city=${this.currentCity}`).then((response) => {
+                axios.get(`/admin/usersCount?cityId=${this.currentCityId}`).then((response) => {
                     this.usersCount = response.data;
                     this.$store.commit(LOADING_SUCCESS);
                 });
