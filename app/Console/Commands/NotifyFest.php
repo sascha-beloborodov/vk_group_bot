@@ -40,29 +40,41 @@ class NotifyFest extends Command
     public function handle()
     {
         $today = new \DateTime();
-        for ($nextDays = 1; $nextDays <= self::MAX_DAYS_INTERVAL; $nextDays++) {
+        for ($nextDays = 0; $nextDays <= self::MAX_DAYS_INTERVAL; $nextDays++) {
+            // fucking business case - only today and in three days
+            if (!in_array($nextDays, [0, self::MAX_DAYS_INTERVAL])) {
+                continue;
+            }
             $clonedToday = clone $today;
             $formattedNextDay = $clonedToday->add(new \DateInterval("P{$nextDays}D"))->format('Y-m-d');
             $fests = DB::connection('mongodb')->collection('fests')->where('date', $formattedNextDay)->get();
-
+            dump($fests);
             foreach ($fests as $fest) {
                 $usersOffset = 0;
                 $usersLimit = 10;
                 $subscribedUsers = DB::connection('mongodb')
                     ->collection('subscribers')
-                    ->where('city_id', $fest['city_id'])
+                    ->where('city_id', (int) $fest['id'])
                     ->skip($usersOffset)
                     ->take($usersLimit)
                     ->get();
+                    
                 while(count($subscribedUsers)) {
+                    $message = '';
                     foreach ($subscribedUsers as $subscribedUser) {
-                        vkApi_messagesSend($subscribedUser['vk_id'], 'Напоминаем, что до фестиваля в городе - ' . mb_strtoupper($fest['name']) . ' осталось ' . $nextDays . ' дня.');
-                        sleep(2);
+                        if ($nextDays === 0) {
+                            $message .= 'Напоминаем, что фестиваль в городе - ' . mb_strtoupper($fest['name']) . ' состоится сегодня.' . PHP_EOL;
+                        } else {
+                            $message .= 'Напоминаем, что до фестиваля в городе - ' . mb_strtoupper($fest['name']) . ' осталось ' . $nextDays . ' дня.' . PHP_EOL ;
+                        }
+                        
                     }
+                    vkApi_messagesSend($subscribedUser['vk_id'], $message);
+                    sleep(2);
                     $usersOffset += 10;
                     $subscribedUsers = DB::connection('mongodb')
                         ->collection('subscribers')
-                        ->where('city_id', $fest['city_id'])
+                        ->where('city_id', (int) $fest['id'])
                         ->skip($usersOffset)
                         ->take($usersLimit)
                         ->get();

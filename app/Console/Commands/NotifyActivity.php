@@ -39,28 +39,29 @@ class NotifyActivity extends Command {
     {
         // get tomorrow fests
         $tomorrowFests = DB::connection('mongodb')->collection('fests')->where('date', (new \DateTime('tomorrow'))->format('Y-m-d'))->get();
-
+        
         foreach ($tomorrowFests as $tomorrowFest) {
             $usersOffset = 0;
             $usersLimit = 10;
-            $subscribedUsers = $this->subscribedUsers($tomorrowFest['name'], $usersLimit, $usersOffset);
+            $subscribedUsers = $this->subscribedUsers($tomorrowFest['id'], $usersLimit, $usersOffset);
 
             // will handle by parts
             while (count($subscribedUsers)) {
 
                 foreach ($subscribedUsers as $subscribedUser) {
                     $activities = $this->usersActivities($subscribedUser['vk_id']);
-                    if (!empty($activities)) {
-                        $message = "Завтра фестиваль. Ты записан на следующие активности:\n";
+                    dump($activities);
+                    if ($activities->count()) {
+                        $message = "Завтра фестиваль в городе - " . mb_strtoupper($tomorrowFest['name']) . ". Ты записан на следующие активности:\n";
                         foreach ($activities as $activity) {
-                            $message .= " - " . $activity['name'] . "\n";
+                            $message .= " - " . $activity['name'] . ";\n";
                         }
                         vkApi_messagesSend($subscribedUser['vk_id'], $message);
                         sleep(2);
                     }
                 }
                 $usersOffset += 10;
-                $subscribedUsers = $this->subscribedUsers($tomorrowFest['name'], $usersLimit, $usersOffset);
+                $subscribedUsers = $this->subscribedUsers($tomorrowFest['id'], $usersLimit, $usersOffset);
             }
         }
     }
@@ -68,16 +69,16 @@ class NotifyActivity extends Command {
     /**
      * Get subscribed users
      *
-     * @param $city
+     * @param $cityId
      * @param $limit
      * @param $offset
      * @return mixed
      */
-    private function subscribedUsers($city, $limit, $offset)
+    private function subscribedUsers($cityId, $limit, $offset)
     {
         return DB::connection('mongodb')
             ->collection('subscribers')
-            ->where('city', $city)
+            ->where('city_id', (int) $cityId)
             ->skip($offset)
             ->take($limit)
             ->get();
@@ -93,7 +94,7 @@ class NotifyActivity extends Command {
     {
         return DB::connection('mongodb')
             ->collection('activities')
-            ->where('vk_id', $userId)
+            ->where('vk_id', (int) $userId)
             ->get();
     }
 }
