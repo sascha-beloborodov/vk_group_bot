@@ -22,14 +22,17 @@ class NotifyController extends AppBaseController
     public function cities(Request $request)
     {
         return response()->json(
-           DB::connection('mongodb')->collection('subscribers')->distinct('city')->get()
+           DB::connection('mongodb')
+               ->collection('subscribers')
+               ->groupBy('city_id')
+               ->get(['city', 'city_id'])
         );
     }
 
     public function usersCount(Request $request)
     {
-        $count = $request->get('city') ?
-            DB::connection('mongodb')->collection('subscribers')->where('city', $request->get('city'))->count() :
+        $count = (int) $request->get('cityId') ?
+            DB::connection('mongodb')->collection('subscribers')->where('city_id', (int) $request->get('cityId'))->count() :
             0;
         return response()->json($count);
     }
@@ -45,22 +48,25 @@ class NotifyController extends AppBaseController
 
     public function notify(Request $request)
     {
+        if (empty($request->get('text')) || !(int) $request->get('cityId')) {
+            return $this->sendError('Не заполнены поля');
+        }
         $recipientsCount = DB
             ::connection('mongodb')
             ->collection('subscribers')
-            ->distinct('vk_id')
+            ->groupBy('vk_id')
             ->count();
         $insertedId = DB::connection('mongodb')->collection('moment_notifications')->insertGetId([
             'created_at' => Carbon::now(new \DateTimeZone('Europe/Moscow'))->format('Y-m-d H:i:s'),
             'created_at_utc' => Carbon::now(new \DateTimeZone('utc'))->format('Y-m-d H:i:s'),
-            'text' => $request->get('text', ''),
-            'city' => $request->get('city', ''),
+            'text' => $request->get('text'),
+            'city' => (int) $request->get('cityId'),
             'sent' => 0,
             'is_working' => 0,
             'queued' => 1,
             'totalRecipients' => $recipientsCount,
             'successRecipients' => 0
         ]);
-        MassNotice::dispatch($insertedId, $request->get('city', 'новороссийск'))->delay(now()->addSecond(100));
+        MassNotice::dispatch($insertedId, (int) $request->get('cityId'))->delay(now()->addSecond(100));
     }
 }
