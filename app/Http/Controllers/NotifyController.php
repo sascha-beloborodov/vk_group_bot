@@ -67,6 +67,7 @@ class NotifyController extends AppBaseController
             'totalRecipients' => $recipientsCount,
             'successRecipients' => 0
         ]);
-        MassNotice::dispatch($insertedId, (int) $request->get('cityId'))->delay(now()->addSecond(100));
+        MassNotice::dispatch($insertedId, (int) $request->get('cityId'))->delay(now()->addSecond(20));
+        return response()->json(['message' => 'Messages begin sending']);
     }
 }

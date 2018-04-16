@@ -50,7 +50,9 @@ class MassNotice implements ShouldQueue
             ->get();
 
         $notice = null;
-        while (count($recipients)) {
+        $totalRecipients = 0;
+        while ($recipients->count()) {
+            $totalRecipients += $recipients->count();
             $notice = DB::connection('mongodb')->collection('moment_notifications')->where('_id', $this->notificationId)->first();
             foreach ($recipients as $recipient) {
                 vkApi_messagesSend($recipient['vk_id'], $notice['text']);
@@ -62,7 +64,7 @@ class MassNotice implements ShouldQueue
                 ->collection('moment_notifications')
                 ->where(['_id' => $this->notificationId])
                 ->update([
-                    'successRecipients' =>  $notice['successRecipients'] + count($recipients),
+                    'successRecipients' =>  $notice['successRecipients'] + $recipients->count(),
                     'is_working' => 1
                 ]);
 
@@ -74,12 +76,11 @@ class MassNotice implements ShouldQueue
                 ->take($limit)
                 ->get();
         }
-
         DB::connection('mongodb')
             ->collection('moment_notifications')
             ->where(['_id' => $this->notificationId])
             ->update([
-                'successRecipients' =>  $notice['successRecipients'] ?? 0 + count($recipients),
+                'successRecipients' => $totalRecipients,
                 'is_working' => 1,
                 'sent' => 1,
                 'queued' => 0,
