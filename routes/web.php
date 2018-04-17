@@ -52,7 +52,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
     Route::get('photos', 'PhotoController@photos');
     Route::put('photos', 'PhotoController@create');
     Route::post('photos/{id}', 'PhotoController@edit');
+    Route::get('photo/votes', 'PhotoController@voteResults');
     Route::get('photo/{id}', 'PhotoController@photo');
+
 
 
 });

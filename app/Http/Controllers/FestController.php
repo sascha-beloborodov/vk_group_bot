@@ -40,7 +40,7 @@ class FestController extends AppBaseController
             DB::connection('mongodb')->collection('fests')->insert([
                 'created_at' => Carbon::now(new \DateTimeZone('Europe/Moscow'))->format('Y-m-d H:i:s'),
                 'created_at_utc' => Carbon::now(new \DateTimeZone('utc'))->format('Y-m-d H:i:s'),
-                'id' => $request->get('id'),
+                'id' => (int) $request->get('id'),
                 'date' => $request->get('date'),
                 'name' => $request->get('name')
             ]);
@@ -58,7 +58,7 @@ class FestController extends AppBaseController
                 ->collection('fests')
                 ->where('_id', $id)
                 ->update([
-                    'id' => $request->get('id'),
+                    'id' => (int) $request->get('id'),
                     'name' => $request->get('name'),
                     'date' => $request->get('date')
                 ]);
