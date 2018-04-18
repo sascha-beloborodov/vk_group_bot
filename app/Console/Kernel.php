@@ -28,6 +28,7 @@ class Kernel extends ConsoleKernel
         //          ->hourly();
         $schedule->command('notify:fest')->everyMinute();
         $schedule->command('notify:activity')->everyMinute();
+        $schedule->command('backup:mongo')->daily();
     }
 
     /**
