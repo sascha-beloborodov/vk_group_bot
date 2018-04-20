@@ -56,7 +56,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
     Route::get('photo/{id}', 'PhotoController@photo');
 
 
-
+    Route::get('participants/{id}', 'ParticipantController@getById');
+    Route::post('participants/{id}', 'ParticipantController@edit');
 });
 
 //Route::get('admin', function () {

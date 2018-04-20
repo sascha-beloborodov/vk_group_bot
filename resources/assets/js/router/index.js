@@ -7,6 +7,7 @@ import { usersList } from "./users";
 import Notify from "./notify";
 import {photoList} from "./photos";
 import {festList} from "./fests";
+import {participantList} from "./participants";
 
 Vue.use(Router);
 
@@ -17,6 +18,7 @@ export default new Router({
         usersList,
         photoList,
         festList,
+        participantList,
         Notify
     ]
 });
