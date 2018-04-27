@@ -42,7 +42,8 @@ class FestController extends AppBaseController
                 'created_at_utc' => Carbon::now(new \DateTimeZone('utc'))->format('Y-m-d H:i:s'),
                 'id' => (int) $request->get('id'),
                 'date' => $request->get('date'),
-                'name' => $request->get('name')
+                'name' => $request->get('name'),
+                'activities' => $request->get('activities')
             ]);
             return $this->sendResponse(['success' => true], 'Success');
         } catch (\Exception $e) {
@@ -60,7 +61,8 @@ class FestController extends AppBaseController
                 ->update([
                     'id' => (int) $request->get('id'),
                     'name' => $request->get('name'),
-                    'date' => $request->get('date')
+                    'date' => $request->get('date'),
+                    'activities' => $request->get('activities')
                 ]);
             return $this->sendResponse(['success' => true], 'Success');
         } catch (\Exception $e) {

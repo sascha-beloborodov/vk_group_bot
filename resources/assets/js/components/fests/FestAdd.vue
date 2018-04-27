@@ -7,22 +7,47 @@
         </div>
         <div class="row">
             <div class="col-md-8">
+
                 <div class="form-group">
                     <label for="">Город:</label>
                     <input type="text" v-model="fest.name" class="form-control">
                 </div>
+
                 <div class="form-group">
                     <label for="">ID:</label>
                     <input type="text" v-model="fest.id" class="form-control">
                 </div>
+
                 <div class="form-group">
-                    <label for="">Дата:</label>
+                    <label for="">Дата (год-месяц-день):</label>
                     <input type="text" v-model="fest.date" class="form-control">
                 </div>
+
+                <div class="form-group" v-if="fest.activities.length">
+                    <p>Список доступных активностей:</p>
+                    <ul>
+                        <li v-for="activity in fest.activities">{{activity | upperCaseFirst}}<i @click="removeActivity(activity)" class="glyphicon glyphicon-remove"></i></li>
+                    </ul>
+                </div>
+
+                <div class="form-inline">
+                    <label for="">Список доступных активностей:</label>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <select name="" id="" class="form-control" v-model="chosenActivity">
+                                <option value="">Выберите</option>
+                                <option :value="activity" v-for="activity in defaultActivities">{{activity}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" @click="addActivity()">Добавить</button>
+                </div>  
+                
                 <div class="form-group">
-                    <button сlass="btn btn-primary" @click="edit">Сохранить</button>
+                    <button class="btn btn-primary" @click="edit">Сохранить</button>
                     <router-link :to="{ name: 'FestList' }">Назад</router-link>
                 </div>
+
             </div>
         </div>
     </div>
@@ -36,17 +61,11 @@
         MODAL_CLOSE
     } from '../../store/mutation-types';
 
+    import { festMixin } from '../../mixins/fests';
+    import { commonMixin } from '../../mixins/common';
+
     export default {
-        data () {
-            return {
-                isLoaded: false,
-                fest: {
-                    name: '',
-                    data: '',
-                    id: ''
-                },
-            }
-        },
+        mixins: [festMixin, commonMixin],
         created() {
             this.isLoaded = true;
         },
@@ -62,14 +81,15 @@
                 const data = {
                     id: this.fest.id,
                     name: this.fest.name,
-                    date: this.fest.date
+                    date: this.fest.date,
+                    activities: this.fest.activities
                 };
 
                 axios.put(`/admin/fests`, data).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.$router.push({ name: 'FestList' });
                 }).catch(error => { this.$store.commit(LOADING_SUCCESS); });
-            }
+            },
         }
     }
 </script>

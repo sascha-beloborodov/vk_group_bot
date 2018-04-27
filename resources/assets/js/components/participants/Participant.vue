@@ -96,7 +96,7 @@
                     this.$store.commit(LOADING_SUCCESS);
                 });
             },
-            addParticipant()
+            // addParticipant()
             edit() {
                 if (this.photo.name.length < 2 || !this.photo.fest.id) {
                     alert('Некорректно заполнены данные');

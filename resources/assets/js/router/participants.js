@@ -1,5 +1,5 @@
-import Participant from '../pages/participants/Participant';
-import ParticipantList from '../pages/participants/ParticipantList';
+import Participant from '../components/participants/Participant';
+import ParticipantList from '../components/participants/ParticipantList';
 import ParticipantAdd from '../components/participants/ParticipantAdd';
 
 export const participantList = {
