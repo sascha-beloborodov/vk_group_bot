@@ -41,27 +41,24 @@ class NotifyActivity extends Command {
         $tomorrowFests = DB::connection('mongodb')->collection('fests')->where('date', (new \DateTime('tomorrow'))->format('Y-m-d'))->get();
         
         foreach ($tomorrowFests as $tomorrowFest) {
-            $usersOffset = 0;
-            $usersLimit = 10;
-            $subscribedUsers = $this->subscribedUsers($tomorrowFest['id'], $usersLimit, $usersOffset);
-
+            $offset = 0;
+            $limit = 10;
+            $activities = $this->usersActivities($tomorrowFest['id'], $offset, $limit);
             // will handle by parts
-            while (count($subscribedUsers)) {
+            while (count($activities)) {
 
-                foreach ($subscribedUsers as $subscribedUser) {
-                    $activities = $this->usersActivities($subscribedUser['vk_id']);
-                    dump($activities);
-                    if ($activities->count()) {
+                foreach ($activities as $activity) {
+                    if (count($activity['activities'])) {
                         $message = "Завтра фестиваль в городе - " . mb_strtoupper($tomorrowFest['name']) . ". Ты записан на следующие активности:\n";
-                        foreach ($activities as $activity) {
-                            $message .= " - " . $activity['name'] . ";\n";
+                        foreach ($activity['activities'] as $activityName) {
+                            $message .= " - " . $activityName . ";\n";
                         }
-                        vkApi_messagesSend($subscribedUser['vk_id'], $message);
-                        sleep(2);
+                        vkApi_messagesSend($activity['vk_id'], $message);
+                        sleep(1);
                     }
                 }
-                $usersOffset += 10;
-                $subscribedUsers = $this->subscribedUsers($tomorrowFest['id'], $usersLimit, $usersOffset);
+                $offset += 10;
+                $activities = $this->usersActivities($tomorrowFest['id'], $offset, $limit);
             }
         }
     }
@@ -90,11 +87,13 @@ class NotifyActivity extends Command {
      * @param $userId
      * @return mixed
      */
-    private function usersActivities($userId)
+    private function usersActivities($cityId, $offset, $limit)
     {
         return DB::connection('mongodb')
             ->collection('activities')
-            ->where('vk_id', (int) $userId)
+            ->where('city_id', (int) $cityId)
+            ->skip($offset)
+            ->take($limit)
             ->get();
     }
 }
