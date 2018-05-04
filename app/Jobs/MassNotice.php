@@ -42,7 +42,8 @@ class MassNotice implements ShouldQueue
         $limit = 5;      
 
         $notice = DB::connection('mongodb')->collection('moment_notifications')->where('_id', $this->notificationId)->first();
-        $recipients = !empty($notice['activity']) ? $this->getUsersWithActivities($limit, $offset) : $this->getUsersWithSubscribe($limit, $offset);
+
+        $recipients = !empty($notice['activity']) ? $this->getUsersWithActivities($limit, $offset, $notice['activities']) : $this->getUsersWithSubscribe($limit, $offset);
 
         $totalRecipients = 0;
         while ($recipients->count()) {
@@ -62,7 +63,7 @@ class MassNotice implements ShouldQueue
                     'is_working' => 1
                 ]);
 
-            $recipients = !empty($notice['activity']) ? $this->getUsersWithActivities($limit, $offset) : $this->getUsersWithSubscribe($limit, $offset);
+            $recipients = !empty($notice['activity']) ? $this->getUsersWithActivities($limit, $offset, $notice['activities']) : $this->getUsersWithSubscribe($limit, $offset);
         }
         DB::connection('mongodb')
             ->collection('moment_notifications')
@@ -75,15 +76,16 @@ class MassNotice implements ShouldQueue
             ]);
     }
 
-    private function getUsersWithActivities($limit, $offset)
+    private function getUsersWithActivities($limit, $offset, $activities = null)
     {
-        return DB
+        $query = DB
             ::connection('mongodb')
-            ->collection('activities') //subscribers
-            ->where('city_id', (int) $this->cityId)
-            ->skip($offset)
-            ->take($limit)
-            ->get();
+            ->collection('activities')
+            ->where('city_id', (int) $this->cityId);
+        if (!empty($activities) && is_array($activities)) {
+            $query = $query->whereIn('activities', $activities);
+        }
+        return $query->skip($offset)->take($limit)->get();
     }
 
     private function getUsersWithSubscribe($limit, $offset)

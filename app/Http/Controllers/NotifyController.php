@@ -62,13 +62,24 @@ class NotifyController extends AppBaseController
     public function usersCount(Request $request)
     {
         if ((int) $request->get('activity') && (int) $request->get('cityId')) {
-            $count = DB::connection('mongodb')->collection('activities')->where('city_id', (int) $request->get('cityId'))->count();
-            return response()->json($count);
+            $countQuery = DB::connection('mongodb')->collection('activities')->where('city_id', (int) $request->get('cityId'));
+            
+            if (!empty($request->get('activities'))) {
+                $countQuery = $countQuery->whereIn('activities', $request->get('activities'));
+            }
+            $count = $countQuery->count();
+            return response()->json([
+                'count' => $count,
+                'city' => DB::connection('mongodb')->collection('fests')->where('id', (int) $request->get('cityId'))->first()
+            ]);
         }
         $count = (int) $request->get('cityId') ?
             DB::connection('mongodb')->collection('subscribers')->where('city_id', (int) $request->get('cityId'))->count() :
             0;
-        return response()->json($count);
+        return response()->json([
+            'count' => $count,
+            'city' => null
+        ]);
     }
 
     public function notifications(Request $request)
@@ -98,6 +109,7 @@ class NotifyController extends AppBaseController
             'sent' => 0,
             'is_working' => 0,
             'activity' => (int) $request->get('activity'),
+            'activities' => $request->get('activities') ?? [],
             'queued' => 1,
             'totalRecipients' => $recipientsCount,
             'successRecipients' => 0

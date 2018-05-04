@@ -1,7 +1,6 @@
 export const festMixin = {
     data () {
         return {
-            defaultActivities: ['автограф-сессия', 'квест', 'воркаут', 'скимбординг'],
             chosenActivity: '',
             isLoaded: false,
             fest: {

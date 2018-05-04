@@ -30,6 +30,19 @@
                     </div>
                 </div>
             </div>
+            <div class="row" v-if="checkedActivity">
+                <div class="col-md-8">
+                    <div class="form-group" v-if="!cityActivities.length">
+                        В этом городе нет активностей
+                    </div>
+                    <div class="form-group" v-if="cityActivities.length">
+                        <label for="">Выберите активность:</label>
+                        <select name="" id="" class="form-control" v-model="currentActivities" multiple @change="setUsersCount()">
+                            <option :value="activity" v-for="activity in cityActivities">{{activity}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-md-8">
                     <button class="btn btn-primary" @click="openModal()" :disabled="!usersCount">Отправить</button>
@@ -104,14 +117,17 @@
     import moment from 'moment';
     import MessageModal from './MessageModal';
     import Pagination from './Pagination';
+    import { commonMixin } from '../mixins/common';
 
     export default {
+        mixins: [commonMixin],
         data() {
             return {
                 text: '',
                 isLoaded: false,
                 cities: [],
-                currentCityId: '',
+                cityActivities: [],
+                currentActivities: [],
                 currentCity: {},
                 error: false,
                 usersCount: 0,
@@ -169,11 +185,13 @@
                     this.$toastr.e("Вы не ввели сообщение или город")
                 } else {
                     this.error = false;
-                    axios.post('/admin/notify', { text: this.text, cityId: this.currentCity.id, activity: this.checkedActivity ? 1 : 0 }).then((response) => {
+                    axios.post('/admin/notify', { text: this.text, cityId: this.currentCity.id, activity: this.checkedActivity ? 1 : 0, activities: this.currentActivities }).then((response) => {
                         this.closeModal();
                         this.$toastr.s("Сообщения начитнают рассылаться");
                         this.text = '';
                         this.currentCity = { id: '', name: ''};
+                        this.currentActivities = [];
+                        this.checkedActivity = false;
                         this.fetchData();
                     }).catch(error => this.$toastr.e("Произошла ошибка"));
                 }
@@ -193,8 +211,9 @@
             setUsersCount() {
                 this.$store.commit(LOADING);
                 const activity = this.checkedActivity ? 1 : 0;
-                axios.get(`/admin/usersCount?cityId=${this.currentCity.id}&activity=${activity}`).then((response) => {
-                    this.usersCount = response.data;
+                axios.get(`/admin/usersCount`, { params: { cityId: this.currentCity.id, activity: activity, activities: this.currentActivities} }).then((response) => {
+                    this.usersCount = response.data.count;
+                    this.cityActivities = response.data.city ? response.data.city.activities : [];
                     this.$store.commit(LOADING_SUCCESS);
                 });
             }

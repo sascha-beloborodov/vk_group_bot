@@ -1,4 +1,9 @@
 export const commonMixin = {
+    data() {
+        return {
+            defaultActivities: ['автограф-сессия', 'квест', 'воркаут', 'скимбординг']
+        }
+    },
     filters: {
         /**
          * 
