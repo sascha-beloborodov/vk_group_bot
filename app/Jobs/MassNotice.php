@@ -39,17 +39,11 @@ class MassNotice implements ShouldQueue
     {
         Log::useFiles(storage_path().'/logs/notification.log');
         $offset = 0;
-        $limit = 5;
+        $limit = 5;      
 
-        $recipients = DB
-            ::connection('mongodb')
-            ->collection('subscribers')
-            ->where('city_id', (int) $this->cityId)
-            ->skip($offset)
-            ->take($limit)
-            ->get();
+        $notice = DB::connection('mongodb')->collection('moment_notifications')->where('_id', $this->notificationId)->first();
+        $recipients = !empty($notice['activity']) ? $this->getUsersWithActivities($limit, $offset) : $this->getUsersWithSubscribe($limit, $offset);
 
-        $notice = null;
         $totalRecipients = 0;
         while ($recipients->count()) {
             $totalRecipients += $recipients->count();
@@ -68,13 +62,7 @@ class MassNotice implements ShouldQueue
                     'is_working' => 1
                 ]);
 
-            $recipients = DB
-                ::connection('mongodb')
-                ->collection('subscribers')
-                ->where('city_id', $this->cityId)
-                ->skip($offset)
-                ->take($limit)
-                ->get();
+            $recipients = !empty($notice['activity']) ? $this->getUsersWithActivities($limit, $offset) : $this->getUsersWithSubscribe($limit, $offset);
         }
         DB::connection('mongodb')
             ->collection('moment_notifications')
@@ -85,5 +73,27 @@ class MassNotice implements ShouldQueue
                 'sent' => 1,
                 'queued' => 0,
             ]);
+    }
+
+    private function getUsersWithActivities($limit, $offset)
+    {
+        return DB
+            ::connection('mongodb')
+            ->collection('activities') //subscribers
+            ->where('city_id', (int) $this->cityId)
+            ->skip($offset)
+            ->take($limit)
+            ->get();
+    }
+
+    private function getUsersWithSubscribe($limit, $offset)
+    {
+        return DB
+            ::connection('mongodb')
+            ->collection('subscribers')
+            ->where('city_id', (int) $this->cityId)
+            ->skip($offset)
+            ->take($limit)
+            ->get();
     }
 }

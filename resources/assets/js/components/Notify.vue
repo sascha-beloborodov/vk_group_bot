@@ -14,11 +14,19 @@
                 <div class="col-md-8">
                     <div class="form-group">
                         <label for="">Выберите город:</label>
-                        <select name="" id="" class="form-control" v-model="currentCityId" @change="setUsersCount()">
+                        <select name="" id="" class="form-control" v-model="currentCity" @change="setUsersCount()">
                             <option
-                                    :value="city.city_id"
-                                    v-for="city in cities">{{city.city.toUpperCase()}}</option>
+                                    :value="city"
+                                    v-for="city in cities">{{city.city.toUpperCase()}} {{!city.activity ? ' (нет активностей)' : ''}}</option>
                         </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <input type="checkbox" v-model="checkedActivity" :disabled="!currentCity.activity" @change="setUsersCount()">
+                        <label for="">Только активности</label>
                     </div>
                 </div>
             </div>
@@ -39,6 +47,7 @@
                             <td>Отправляется</td>
                             <td>Общее кол-во получателей</td>
                             <td>Успешных получателей</td>
+                            <td>Активность</td>
                         </tr>
                         <tr v-for="notification in notifications">
                             <td>{{ notification.text }}</td>
@@ -48,6 +57,7 @@
                             <td>{{ notification.queued }}</td>
                             <td>{{ notification.totalRecipients }}</td>
                             <td>{{ notification.successRecipients }}</td>
+                            <td>{{ notification.activity ? 1 : 0 }}</td>
                         </tr>
                     </table>
                 </div>
@@ -67,7 +77,7 @@
                 </div>
                 <div slot="body">
                     <div>
-                        Вы действительно хотите уведомить {{usersCount}} пользователей из для города - {{currentCityId}}
+                        Вы действительно хотите уведомить {{usersCount}} пользователей из города - {{currentCity.city}}
                     </div>
                     <div class="error" v-if="error">
                         Вы не выбрали город или нет сообщения
@@ -102,10 +112,11 @@
                 isLoaded: false,
                 cities: [],
                 currentCityId: '',
+                currentCity: {},
                 error: false,
                 usersCount: 0,
                 notifications: [],
-
+                checkedActivity: false,
                 currentPage: 1,
                 perPage: null,
                 lastPage: null,
@@ -154,15 +165,15 @@
                 });
             },
             notify() {
-                if (!this.currentCityId || !this.text.length) {
+                if (!this.currentCity.id || !this.text.length) {
                     this.$toastr.e("Вы не ввели сообщение или город")
                 } else {
                     this.error = false;
-                    axios.post('/admin/notify', { text: this.text, cityId: this.currentCityId }).then((response) => {
+                    axios.post('/admin/notify', { text: this.text, cityId: this.currentCity.id, activity: this.checkedActivity ? 1 : 0 }).then((response) => {
                         this.closeModal();
                         this.$toastr.s("Сообщения начитнают рассылаться");
                         this.text = '';
-                        this.currentCityId = '';
+                        this.currentCity = { id: '', name: ''};
                         this.fetchData();
                     }).catch(error => this.$toastr.e("Произошла ошибка"));
                 }
@@ -181,7 +192,8 @@
 
             setUsersCount() {
                 this.$store.commit(LOADING);
-                axios.get(`/admin/usersCount?cityId=${this.currentCityId}`).then((response) => {
+                const activity = this.checkedActivity ? 1 : 0;
+                axios.get(`/admin/usersCount?cityId=${this.currentCity.id}&activity=${activity}`).then((response) => {
                     this.usersCount = response.data;
                     this.$store.commit(LOADING_SUCCESS);
                 });

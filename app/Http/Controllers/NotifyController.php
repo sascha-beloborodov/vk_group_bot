@@ -21,16 +21,50 @@ class NotifyController extends AppBaseController
 
     public function cities(Request $request)
     {
-        return response()->json(
-           DB::connection('mongodb')
+        $citiesSubs = DB::connection('mongodb')
                ->collection('subscribers')
                ->groupBy('city_id')
-               ->get(['city', 'city_id'])
-        );
+               ->get(['city', 'city_id']);
+
+        $citiesActivities = DB::connection('mongodb')
+            ->collection('activities')
+            ->groupBy('city_id')
+            ->get(['city_id']);
+
+        $fests = DB::connection('mongodb')
+            ->collection('fests')
+            ->get();
+
+        $result = [];
+        foreach ($fests as $fest) {
+            foreach ($citiesSubs as $citySub) {
+                if ($citySub['city_id'] == $fest['id']) {
+                    $result[(int) $fest['id']] = [
+                        'id' => $fest['id'],
+                        'city' => $fest['name'],
+                        'activity' => 0
+                    ];
+                }
+            }
+            foreach ($citiesActivities as $cityActivity) {
+                if ($cityActivity['city_id'] == $fest['id']) {
+                    $result[(int) $fest['id']] = [
+                        'id' => $fest['id'],
+                        'city' => $fest['name'],
+                        'activity' => 1
+                    ];
+                }
+            }
+        }
+        return response()->json($result);
     }
 
     public function usersCount(Request $request)
     {
+        if ((int) $request->get('activity') && (int) $request->get('cityId')) {
+            $count = DB::connection('mongodb')->collection('activities')->where('city_id', (int) $request->get('cityId'))->count();
+            return response()->json($count);
+        }
         $count = (int) $request->get('cityId') ?
             DB::connection('mongodb')->collection('subscribers')->where('city_id', (int) $request->get('cityId'))->count() :
             0;
@@ -63,6 +97,7 @@ class NotifyController extends AppBaseController
             'city' => (int) $request->get('cityId'),
             'sent' => 0,
             'is_working' => 0,
+            'activity' => (int) $request->get('activity'),
             'queued' => 1,
             'totalRecipients' => $recipientsCount,
             'successRecipients' => 0
