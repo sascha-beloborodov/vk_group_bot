@@ -63,4 +63,7 @@
     a.active {
         color: #000;
     }
+    .pagination>li {
+        display: inline-flex;
+    }
 </style>

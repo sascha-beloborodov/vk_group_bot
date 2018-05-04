@@ -31,6 +31,10 @@
                     <router-link to="/fests"><i class="fa fa-home"></i>Фестивали</router-link>
                 </li>
 
+                <li v-bind:class="{ active: $route.path == '/participants' }">
+                    <router-link to="/participants"><i class="fa fa-home"></i>Участники голосования</router-link>
+                </li>
+
             </ul>
             <!-- /.sidebar-menu -->
         </section>

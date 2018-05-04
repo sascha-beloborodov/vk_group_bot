@@ -99,15 +99,21 @@ class UsersController extends AppBaseController
             $user['attempts'] = DB
                 ::connection('mongodb')
                 ->collection('faq_attempts')
-                ->where('vk_id', $user['vk_id'])
+                ->where('vk_id', (int) $user['vk_id'])
                 ->first();
 
             $user['lastMessage'] = DB
                 ::connection('mongodb')
                 ->collection('messages')
-                ->where('data.user_id', $user['vk_id'])
+                ->where('data.user_id', (int) $user['vk_id'])
                 ->orderBy('created_at', -1)
                 ->first();
+
+            $user['activities'] = DB
+                ::connection('mongodb')
+                ->collection('activities')
+                ->where('vk_id', (int) $user['vk_id'])
+                ->get();
 
             if ($type == self::SECTION_SUBSCRIBERS) {
                 $user['subs'] = DB
@@ -134,6 +140,15 @@ class UsersController extends AppBaseController
             ->json([
                 'users' => $users
             ]);
+    }
+
+    public function getActivitiesByUserId($userVkId, Request $request)
+    {
+        return DB
+            ::connection('mongodb')
+            ->collection('activities')
+            ->where('vk_id', (int) $userVkId)
+            ->get();
     }
 
 }

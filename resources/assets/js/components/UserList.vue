@@ -22,8 +22,9 @@
                         <td>Время последнего сообщения</td>
                         <td>Ожидает ответа</td>
                         <td v-if="filter.currentSection == 'subscribers'">Подписки на города</td>
+                        <td></td>
                     </tr>
-                    <tr v-for="(user, idx) in list" @click="chooseUser(user.vk_id)" :class="{ reached: isLimitReached(user) }">
+                    <tr v-for="(user, idx) in list" :class="{ reached: isLimitReached(user) }">
                         <td>{{ user.vk_id }}</td>
                         <td>{{ user.first_name }} {{ user.last_name }}</td>
                         <td>{{ user.has_kfc ? 'да' : 'нет' }}</td>
@@ -36,6 +37,10 @@
                                 </li>
                             </ul>
                         </td>
+                        <td>
+                            <button class="btn btn-success" @click="chooseUser(user.vk_id)"><i class="glyphicon glyphicon-pencil"></i></button>
+                            <button class="btn btn-primary" @click="showActivities(user.vk_id)" v-if="user.activities.length">Активности</button>
+                        </td>
                     </tr>
                 </table>
                 <pagination
@@ -47,6 +52,30 @@
             </div>
 
         </div>
+        <message-modal v-if="showModal">
+            <div slot="header">
+                Список активностей пользователя
+            </div>
+            <div slot="body">
+                <table class="table">
+                    <tr>
+                        <td>City ID</td>
+                        <td>Активности</td>
+                    </tr>
+                    <tr v-for="(activity, idx) in activities">
+                        <td>{{activity.city_id}}</td>
+                        <td>
+                            <ul>
+                                <li v-for="activityName in activity.activities">{{activityName}}</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div slot="footer">
+                <button class="btn btn-danger" @click="closeModal()">Закрыть</button>
+            </div>
+        </message-modal>
     </div>
 </template>
 
@@ -72,6 +101,7 @@
                 perPage: null,
                 lastPage: null,
                 total: null,
+                activities: [],
                 filter: {
                     currentSection: 'all',
                     types: [
@@ -98,7 +128,10 @@
         computed: {
             url() {
                 return `#/users`;
-            }
+            },
+            showModal() {
+                return this.$store.state.showModal;
+            },
         },
 
         watch: {
@@ -139,7 +172,19 @@
             },
             chooseUser(userVkId) {
               this.$router.push({ name: 'User', params: { id: userVkId }});
-            }
+            },
+            showActivities(userVkId) {
+                this.$store.commit(LOADING);
+                axios.get(`/admin/activities/${userVkId}`).then((response) => {
+                    this.$store.commit(LOADING_SUCCESS);
+                    this.$store.commit(MODAL_OPEN);
+                    this.activities = response.data;
+                }).catch(error => { this.$store.commit(LOADING_SUCCESS); });
+            },
+            closeModal() {
+                this.activities = [];
+                this.$store.commit(MODAL_CLOSE);
+            },
         },
 
         filters: {
@@ -163,4 +208,11 @@
         background: rgba(194, 194, 194, 0.15);
     }
 
+    td, th {
+        padding: 5px 0 5px 0;
+    }
+
+    .modal-container {
+        width: 40%;
+    }
 </style>

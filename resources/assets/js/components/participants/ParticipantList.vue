@@ -2,7 +2,7 @@
     <div class="row show-page-container">
         <router-view></router-view>
         <div class="col-md-8" v-if="isLoaded && !$route.params.id && !$route.meta.isListHidden" >
-            <h2>Список фото</h2>
+            <h2>Список участников</h2>
             <div class="row">
                 <table class="table table-hover">
                     <tr>
@@ -10,14 +10,14 @@
                         <td>City</td>
                         <td>Name</td>
                     </tr>
-                    <tr v-for="(photo, idx) in list" @click="choosePhoto(photo._id)">
+                    <tr v-for="(photo, idx) in list" @click="chooseParticipant(photo._id)">
                         <td>{{ photo.city_id }}</td>
                         <td>{{ photo.city }}</td>
                         <td>{{ photo.name }}</td>
                         <td></td>
                      </tr>
                 </table>
-                <router-link :class="{btn: true, ['btn-primary']: true}" :to="{ name: 'PhotoAdd' }">Добавить идентификатор</router-link>
+                <router-link :class="{btn: true, ['btn-primary']: true}" :to="{ name: 'ParticipantAdd' }">Добавить</router-link>
                 <pagination
                         :currentPage="currentPage"
                         :lastPage="lastPage"
@@ -25,27 +25,6 @@
                         :perPage="perPage"
                         :total="total"></pagination>
             </div>
-            <hr>
-            <div class="row">
-                
-                <h3>Скачать результаты</h3>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <select v-model="currentCity.id" class="form-control">
-                            <option :value="city.id" v-for="city in cities">{{city.name.toUpperCase()}}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <label for=""></label>
-                    <button :class="{
-                            btn: true,
-                            ['btn-success']: currentCity.id,
-                            ['btn-default']: !currentCity.id
-                        }" :disabled="!currentCity.id" @click="downloadResults">Скачать</button>
-                </div>
-            </div>
-
         </div>
     </div>
 </template>
@@ -86,11 +65,6 @@
         },
 
         created() {
-            axios.get(`/admin/fests/all`).then((response) => {
-                this.$store.commit(LOADING_SUCCESS);
-                this.isLoaded = true;
-                this.cities = response.data;
-            }).catch(error => { console.warn(error); });
             this.fetchList();
         },
 
@@ -114,28 +88,21 @@
                 if (query.page === undefined) {
                     query.page = 1;
                 }
-                axios.get(`/admin/photos?page=${query.page}`).then((response) => {
-                    this.$store.commit(LOADING_SUCCESS);
+                axios.get(`/admin/participants/all?page=${query.page}`).then((response) => {
+                    
                     this.isLoaded = true;
                     this.list = response.data.data;
                     this.currentPage = response.data.current_page;
                     this.perPage = response.data.per_page;
                     this.lastPage = response.data.last_page;
                     this.total = response.data.total;
+                    this.$store.commit(LOADING_SUCCESS);
                 }).catch(error => { this.$store.commit(LOADING_SUCCESS); });
             },
 
-            choosePhoto(id) {
-                this.$router.push({ name: 'Photo', params: { id: id.$oid }});
+            chooseParticipant(id) {
+                this.$router.push({ name: 'Participant', params: { id: id.$oid }});
             },
-
-            downloadResults() {
-                if (!this.currentCity.id) {
-                    this.$toastr.e("Вы не выбрали город");
-                    return;
-                }
-                window.open(`/admin/photo/votes?id=${this.currentCity.id}`);
-            }
         },
 
     }

@@ -70,4 +70,8 @@ class FestController extends AppBaseController
         }
     }
 
+    public function remove($id, Request $request)
+    {
+        return DB::connection('mongodb')->table('fests')->where('_id', $id)->delete();
+    }
 }

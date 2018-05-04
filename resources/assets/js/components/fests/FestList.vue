@@ -9,12 +9,16 @@
                         <td>ID</td>
                         <td>City</td>
                         <td>Date</td>
+                        <td></td>
                     </tr>
-                    <tr v-for="(fest, idx) in list" @click="chooseFest(fest._id)">
+                    <tr v-for="(fest, idx) in list">
                         <td>{{ fest.id }}</td>
                         <td>{{ fest.name }}</td>
                         <td>{{ fest.date }}</td>
-                        <td></td>
+                        <td>
+                            <button class="btn btn-success" @click="chooseFest(fest._id)"><i class="glyphicon glyphicon-pencil"></i></button>
+                            <button class="btn btn-danger" @click="removeFest(fest._id)"><i class="glyphicon glyphicon-remove"></i></button>
+                        </td>
                     </tr>
                 </table>
                 <router-link :to="{ name: 'FestAdd' }">Добавить фестиваль</router-link>
@@ -97,6 +101,14 @@
 
             chooseFest(id) {
                 this.$router.push({ name: 'Fest', params: { id: id.$oid }});
+            },
+
+            removeFest(id) {
+                this.$store.commit(LOADING);
+                axios.delete(`/admin/fests/${id.$oid}`).then((response) => {
+                    this.$store.commit(LOADING_SUCCESS);
+                }).catch(error => { this.$store.commit(LOADING_SUCCESS); });
+                this.fetchList();
             }
         },
 
@@ -113,4 +125,11 @@
         background: rgba(194, 194, 194, 0.15);
     }
 
+    td, th {
+        padding: 5px 0 5px 0;
+    }
+
+    tr {
+        border-bottom: 1px #b5b5b5 solid;
+    }
 </style>

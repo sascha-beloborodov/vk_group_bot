@@ -41,13 +41,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
 
 	Route::get('users/{id}', 'UsersController@userById');
 	Route::get('users/{id}/messages', 'UsersController@usersMessages');
-	Route::get('users', 'UsersController@users');
+    Route::get('users', 'UsersController@users');
+    Route::get('activities/{userId}', 'UsersController@getActivitiesByUserId');
 
     Route::get('fests', 'FestController@festLIst');
     Route::get('fests/all', 'FestController@all');
     Route::put('fests', 'FestController@create');
     Route::post('fests/{id}', 'FestController@edit');
     Route::get('fests/{id}', 'FestController@fest');
+    Route::delete('fests/{id}', 'FestController@remove');
 
     Route::get('photos', 'PhotoController@photos');
     Route::put('photos', 'PhotoController@create');
@@ -57,7 +59,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
 
 
     Route::get('participants/{id}', 'ParticipantController@getById');
+    Route::get('participants/all', 'ParticipantController@getAll');
     Route::post('participants/{id}', 'ParticipantController@edit');
+    Route::put('participants', 'ParticipantController@create');
 });
 
 //Route::get('admin', function () {

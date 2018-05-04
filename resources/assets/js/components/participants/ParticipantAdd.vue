@@ -24,13 +24,13 @@
 
                 <div class="form-group">
                     <label for="">Фестиваль:</label>
-                    <select v-model="photo.participant.id" class="form-control">
+                    <select v-model="participant.fest.id" class="form-control">
                         <option :value="fest.id" v-for="fest in fests">{{fest.name.toUpperCase()}}</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <button сlass="btn btn-primary" @click="edit">Сохранить</button>
-                    <router-link :to="{ name: 'PhotoList' }">Назад</router-link>
+                    <router-link :to="{ name: 'ParticipantList' }">Назад</router-link>
                 </div>
             </div>
         </div>

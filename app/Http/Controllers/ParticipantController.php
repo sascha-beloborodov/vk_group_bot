@@ -24,18 +24,9 @@ class ParticipantController extends AppBaseController
             ->first();
     }
 
-
-    public function photos(Request $request)
+    public function getAll(Request $request)
     {
-        return DB::connection('mongodb')->collection('photos')->paginate(15);
-    }
-
-    public function photo($id, Request $request)
-    {
-        return DB::connection('mongodb')
-            ->collection('photos')
-            ->where('_id', $id)
-            ->first();
+        return DB::connection('mongodb')->collection('participants')->paginate(15);
     }
 
     public function create(Request $request)
@@ -71,41 +62,4 @@ class ParticipantController extends AppBaseController
             return $this->sendError($e->getMessage());
         }
     }
-
-    public function voteResults(Request $request)
-    {
-        if (!(int) $request->get('id')) {
-            return 'Голосов нет';
-        }
-
-        $city = DB::connection('mongodb')->collection('fests')->where('id', $request->get('id'))->first();
-        $votes = DB::connection('mongodb')->collection('photo_votes')->where('city_id', $request->get('id'))->get();
-        if (empty($city) || empty($votes)) {
-            return 'Голосов нет';
-        }
-        $dataResponse = [[
-            'Город', 'ID города', 'VK id', 'Голос', 'Дата'
-        ]];
-        foreach ($votes as $vote) {
-            $dataResponse[] = [
-                $city['name'],
-                $vote['city_id'],
-                $vote['vk_id'],
-                $vote['photo'],
-                $vote['created_at']
-            ];
-        }
-        $filename = "export";
-        $outputBuffer = fopen("php://output", 'w');
-        foreach($dataResponse as $val) {
-            fputcsv($outputBuffer, $val);
-        }
-        fclose($outputBuffer);
-        header("Content-type: text/csv");
-        header("Content-Disposition: attachment; filename={$filename}.csv");
-        header("Pragma: no-cache");
-        header("Expires: 0");
-        die;
-    }
-
 }
