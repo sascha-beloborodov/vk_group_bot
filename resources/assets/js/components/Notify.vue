@@ -32,7 +32,7 @@
             </div>
             <div class="row">
                 <div class="col-md-8">
-                    <button class="btn btn-primary" @click="openModal()">Отправить</button>
+                    <button class="btn btn-primary" @click="openModal()" :disabled="!usersCount">Отправить</button>
                 </div>
             </div>
 
