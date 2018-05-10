@@ -52,7 +52,7 @@
             </div>
 
         </div>
-        <message-modal v-if="showModal">
+        <!-- <message-modal v-if="showModal && !user">
             <div slot="header">
                 Список активностей пользователя
             </div>
@@ -75,7 +75,7 @@
             <div slot="footer">
                 <button class="btn btn-danger" @click="closeModal()">Закрыть</button>
             </div>
-        </message-modal>
+        </message-modal> -->
     </div>
 </template>
 
@@ -95,6 +95,7 @@
 
         data () {
             return {
+                user: null,
                 list: [],
                 isLoaded: false,
                 currentPage: 1,

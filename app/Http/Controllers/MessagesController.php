@@ -41,7 +41,7 @@ class MessagesController extends AppBaseController
         $messageItems = $messages->items();
         $ids = [];
         foreach ($messageItems as &$messageItem) {
-            if ($messageItem['unread'] == 1) {
+            if (@$messageItem['unread'] == 1) {
                 $_id = $messageItem['_id'];
                 $ids[] = (string) $_id;
                 $messageItem['is_new'] = 1;
@@ -94,6 +94,7 @@ class MessagesController extends AppBaseController
         DB::connection('mongodb')->collection('messages')->insert([
             'created_at' => Carbon::now(new \DateTimeZone('Europe/Moscow'))->format('Y-m-d H:i:s'),
             'created_at_utc' => Carbon::now(new \DateTimeZone('utc'))->format('Y-m-d H:i:s'),
+            'unread' => 0,
             'data' => [
                 'body' => $message,
                 'from' => 'admin',
