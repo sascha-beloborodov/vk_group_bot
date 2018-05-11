@@ -43,6 +43,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
 	Route::get('users/{id}/messages', 'UsersController@usersMessages');
     Route::get('users', 'UsersController@users');
     Route::get('activities/{userId}', 'UsersController@getActivitiesByUserId');
+    Route::get('users/subscribers/cities', 'UsersController@subscriberCities');
 
     Route::get('fests', 'FestController@festLIst');
     Route::get('fests/all', 'FestController@all');
