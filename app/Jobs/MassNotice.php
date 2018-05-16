@@ -14,7 +14,14 @@ class MassNotice implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * @var string $notificationId
+     */
     public $notificationId;
+
+    /**
+     * @var string $cityId
+     */
     public $cityId;
 
     /**
@@ -24,8 +31,6 @@ class MassNotice implements ShouldQueue
      */
     public function __construct($notificationId, $cityId)
     {
-        Log::useFiles(storage_path().'/logs/notification.log');
-        Log::info('Notification ID - ' . $notificationId);
         $this->notificationId = $notificationId;
         $this->cityId = $cityId;
     }
@@ -38,44 +43,67 @@ class MassNotice implements ShouldQueue
     public function handle()
     {
         Log::useFiles(storage_path().'/logs/notification.log');
+
         $offset = 0;
         $limit = 5;      
 
         $notice = DB::connection('mongodb')->collection('moment_notifications')->where('_id', $this->notificationId)->first();
-
         $recipients = !empty($notice['activity']) ? $this->getUsersWithActivities($limit, $offset, $notice['activities']) : $this->getUsersWithSubscribe($limit, $offset);
-
         $totalRecipients = 0;
+        // loop parts of recepients
         while ($recipients->count()) {
             $totalRecipients += $recipients->count();
+            // the notice is updated every iteration
             $notice = DB::connection('mongodb')->collection('moment_notifications')->where('_id', $this->notificationId)->first();
             foreach ($recipients as $recipient) {
-                vkApi_messagesSend($recipient['vk_id'], $notice['text']);
-                sleep(1);
+                try {
+                    vkApi_messagesSend($recipient['vk_id'], $notice['text']);
+                    sleep(1);
+                } catch (\Exception $e) {
+                    Log::info('Send fail to - ' . $recipient['vk_id']);
+                    continue;
+                }
             }
             sleep(1);
             $offset += 5;
-            DB::connection('mongodb')
-                ->collection('moment_notifications')
-                ->where(['_id' => $this->notificationId])
-                ->update([
-                    'successRecipients' =>  $notice['successRecipients'] + $recipients->count(),
-                    'is_working' => 1
-                ]);
-
+            $this->updateNotificationInfo($this->notificationId, [
+                'successRecipients' => $notice['successRecipients'] + $recipients->count(),
+                'is_working' => 1
+            ]);
+            // get other recipients
             $recipients = !empty($notice['activity']) ? $this->getUsersWithActivities($limit, $offset, $notice['activities']) : $this->getUsersWithSubscribe($limit, $offset);
         }
-        DB::connection('mongodb')
-            ->collection('moment_notifications')
-            ->where(['_id' => $this->notificationId])
-            ->update([
-                'successRecipients' => $totalRecipients,
-                'is_working' => 1,
-                'sent' => 1,
-                'queued' => 0,
-            ]);
+        $this->updateNotificationInfo($this->notificationId, [
+            'successRecipients' => $totalRecipients,
+            'is_working' => 0,
+            'sent' => 1,
+            'queued' => 0,
+        ]);
     }
 
+    /**
+     * Update current notification
+     *
+     * @param string $notificationId
+     * @param array $updatedData
+     * @return void
+     */
+    private function updateNotificationInfo($notificationId, $updatedData)
+    {
+        DB::connection('mongodb')
+            ->collection('moment_notifications')
+            ->where(['_id' => $notificationId])
+            ->update($updatedData);
+    }
+
+    /**
+     * Get users with activites by parts
+     *
+     * @param int $limit
+     * @param int $offset
+     * @param array[string] $activities
+     * @return Illuminate\Support\Collection
+     */
     private function getUsersWithActivities($limit, $offset, $activities = null)
     {
         $query = DB
@@ -88,6 +116,13 @@ class MassNotice implements ShouldQueue
         return $query->skip($offset)->take($limit)->get();
     }
 
+    /**
+     * Get users with subscribers by parts
+     *
+     * @param int $limit
+     * @param int $offset
+     * @return Illuminate\Support\Collection
+     */
     private function getUsersWithSubscribe($limit, $offset)
     {
         return DB
