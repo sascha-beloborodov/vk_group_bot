@@ -54,11 +54,11 @@
         methods: {
             fetchData() {
                 this.$store.commit(LOADING);
-                axios.get(`/admin/fests/all`).then((response) => {
+                axios.get(`/api/fests/all`).then((response) => {
                     this.isLoaded = true;
                     this.fests = response.data;
 
-                    axios.get(`/admin/photo/${this.$route.params.id}`).then((response) => {
+                    axios.get(`/api/photo/${this.$route.params.id}`).then((response) => {
 
                         this.$store.commit(LOADING_SUCCESS);
                         this.isLoaded = true;
@@ -81,7 +81,7 @@
                 const data = { id: this.photo.fest.id, name: this.photo.name};
                 data.city = this.fests.filter(val => val.id == this.photo.fest.id)[0]['name'];
                 debugger;
-                axios.post(`/admin/photos/${this.$route.params.id}`, data).then((response) => {
+                axios.post(`/api/photos/${this.$route.params.id}`, data).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.$router.push({ name: 'PhotoList' });
                 }).catch(error => { this.$store.commit(LOADING_SUCCESS); });

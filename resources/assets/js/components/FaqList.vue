@@ -139,7 +139,7 @@
                 if (query.page === undefined) {
                     query.page = 1;
                 }
-                axios.get(`/admin/faq-list?page=${query.page}`).then((res) => {
+                axios.get(`/api/faq-list?page=${query.page}`).then((res) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.list = res.data.data;
 
@@ -153,14 +153,14 @@
 
             createOrUpdateFAQ(id) {
                 if (!this.edit) {
-                    axios.post(`/admin/faq`, this.faq)
+                    axios.post(`/api/faq`, this.faq)
                         .then((res) => {
                             this.clearData();
                             this.fetchFAQList();
                         })
                         .catch((err) => console.error(err));
                 } else {
-                    axios.put(`/admin/faq/${id.$oid}`, this.faq)
+                    axios.put(`/api/faq/${id.$oid}`, this.faq)
                         .then((res) => {
                             this.clearData();
                             this.fetchFAQList();
@@ -170,7 +170,7 @@
             },
 
             editFAQ(id) {
-                axios.get(`/admin/faq/${id}`).then((res) => {
+                axios.get(`/api/faq/${id}`).then((res) => {
                     $("html, body").animate({ scrollTop: 0 }, "slow");
                     this.faq = res.data.data;
                     this.edit = true;
@@ -178,7 +178,7 @@
             },
 
             deleteFAQ(id) {
-                axios.delete(`/admin/faq/${id}`)
+                axios.delete(`/api/faq/${id}`)
                     .then((res) => {
                         this.fetchFAQList()
                     })

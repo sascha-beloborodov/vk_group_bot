@@ -5,6 +5,7 @@ export default {
     name: 'MessagesList',
     meta: {
       breadcrumb: 'Сообщения',
+      requiresAuth: true
     },
     component: MessagesList
 }

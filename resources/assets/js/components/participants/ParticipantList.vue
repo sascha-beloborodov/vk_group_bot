@@ -88,7 +88,7 @@
                 if (query.page === undefined) {
                     query.page = 1;
                 }
-                axios.get(`/admin/participants/all?page=${query.page}`).then((response) => {
+                axios.get(`/api/participants/all?page=${query.page}`).then((response) => {
                     
                     this.isLoaded = true;
                     this.list = response.data.data;

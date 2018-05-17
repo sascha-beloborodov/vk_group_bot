@@ -8,6 +8,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     strict: true,
     state: {
+        isLoggedIn: !!localStorage.getItem('token'),
         showLoader: false,
         showModal: false,
         activeUser: {

@@ -6,7 +6,9 @@ import {
     ERROR_MSG,
     MODAL_OPEN,
     MODAL_CLOSE,
-    SET_ACTIVEUSER
+    SET_ACTIVEUSER,
+    LOGIN_USER,
+    LOGOUT_USER
 } from './mutation-types'
 
 export const mutations = {
@@ -27,5 +29,11 @@ export const mutations = {
           id: payload.vk_id,
           name: `${payload.first_name} ${payload.last_name}`
         };
-    }
+    },
+    [LOGIN_USER] (state) {
+        state.isLoggedIn = true
+    },
+    [LOGOUT_USER] (state) {
+        state.isLoggedIn = false
+    },
 };

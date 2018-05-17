@@ -156,7 +156,7 @@
 
         methods: {
             fetchCities() {
-                axios.get(`/admin/users/subscribers/cities`).then((response) => {
+                axios.get(`/api/users/subscribers/cities`).then((response) => {
                     this.filter.cities = response.data;
                 });
             },
@@ -167,7 +167,7 @@
                 if (query.page === undefined) {
                     query.page = 1;
                 }
-                axios.get(`/admin/users?page=${query.page}&type=${this.filter.currentSection}&cityId=${this.filter.currentCity.city_id}`).then((response) => {
+                axios.get(`/api/users?page=${query.page}&type=${this.filter.currentSection}&cityId=${this.filter.currentCity.city_id}`).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.isLoaded = true;
                     this.list = response.data.users.data;
@@ -194,7 +194,7 @@
             },
             showActivities(userVkId) {
                 this.$store.commit(LOADING);
-                axios.get(`/admin/activities/${userVkId}`).then((response) => {
+                axios.get(`/api/activities/${userVkId}`).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.$store.commit(MODAL_OPEN);
                     this.activities = response.data;

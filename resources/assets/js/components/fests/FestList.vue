@@ -88,7 +88,7 @@
                 if (query.page === undefined) {
                     query.page = 1;
                 }
-                axios.get(`/admin/fests?page=${query.page}`).then((response) => {
+                axios.get(`/api/fests?page=${query.page}`).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.isLoaded = true;
                     this.list = response.data.data;
@@ -105,7 +105,7 @@
 
             removeFest(id) {
                 this.$store.commit(LOADING);
-                axios.delete(`/admin/fests/${id.$oid}`).then((response) => {
+                axios.delete(`/api/fests/${id.$oid}`).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
                 }).catch(error => { this.$store.commit(LOADING_SUCCESS); });
                 this.fetchList();

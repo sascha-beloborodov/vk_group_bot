@@ -8,6 +8,7 @@ export const festList = {
     name: 'FestList',
     meta: {
         breadcrumb: 'Фестивали',
+        requiresAuth: true
     },
     children: [
         {
@@ -17,7 +18,8 @@ export const festList = {
             meta: {
                 isListHidden: true,
                 dynamic: true,
-                breadcrumb: () => 'Добавить фестиваль'
+                breadcrumb: () => 'Добавить фестиваль',
+                requiresAuth: true
             }
         },
         {
@@ -26,7 +28,8 @@ export const festList = {
             component: Fest,
             meta: {
                 dynamic: true,
-                breadcrumb: fest => fest.city
+                breadcrumb: fest => fest.city,
+                requiresAuth: true
             }
         }
     ]

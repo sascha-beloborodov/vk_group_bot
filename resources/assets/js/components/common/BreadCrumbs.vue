@@ -1,6 +1,6 @@
 <template>
   <div class="breadcrumbs">
-    <ul class="breadcrumbs__list">
+    <!-- <ul class="breadcrumbs__list">
       <li><router-link to="/">Главная</router-link></li>
       <li v-for="(route, index) in $route.matched">
         <router-link :to="{ name: route.name, params: {} }">
@@ -10,7 +10,10 @@
           }}
         </router-link>
       </li>
-    </ul>
+    </ul> -->
+      <sui-breadcrumb :sections="sections">
+
+      </sui-breadcrumb>
   </div>
 </template>
 
@@ -19,14 +22,24 @@
 
   import {
     SET_BREADCRUMB,
-  } from '../store/mutation-types';
+  } from '../../store/mutation-types';
 
   export default {
     data() {
       return {
-        value: '',
-        formattedValue: ''
+        sections: []
       }
+    },
+    created() {
+        const mainPage = { key: '/', content: 'Главная', link: true };
+        this.$route.matched.forEach((route) => {
+            if (route.meta.name == 'User') {
+              route.meta.breadcrumb(this.$store.state.activeUser);
+            }
+            this.sections.push({ key: route.path, content: route.meta.breadcrumb, active: this.$route.path == route.path });
+        });
+        this.sections.unshift(mainPage);
+        // debugger;
     }
   }
 </script>

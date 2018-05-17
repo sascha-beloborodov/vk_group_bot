@@ -1,8 +1,8 @@
 <template>
-    <div class='row' v-if="isLoaded">
+    <div class='ten row' v-if="isLoaded">
         <h1>Список сообщений ({{ this.unreadMessages }} | {{ this.totalMessages }})</h1>
-        <div class="col-md-8">
-            <div class="form-group">
+        <div class="ui form">
+            <div class="two field">
                 <label for="">Тип</label>
                 <select name="" id="" class="form-control" v-model="filter.type" @change="changeType">
                     <option :value="''" selected>Все</option>
@@ -11,7 +11,7 @@
             </div>
         </div>
         <div class="col-md-8">
-            <table class="table table-hover">
+            <table class="ui table">
                 <tr>
                     <td>От</td>
                     <td>Текст</td>
@@ -21,22 +21,21 @@
                     <td></td>
                 </tr>
                 <tr v-for="(message, index) in list">
-                    <td><a :href="createLink(message.data.user_id)">{{ message.data.user_id }}</a></td>
+                    <td>
+                        <a :href="createLink(message.data.user_id)">{{ message.data.user_id }}</a>
+                    </td>
                     <td>{{ message.data.body }}</td>
                     <td>{{ message.is_new ? '+' : '-' }}</td>
                     <td>{{ message.data.type }}</td>
                     <td>{{ message.created_at }}</td>
-                    <td> <button class="btn btn-primary" id="show-modal" @click="openModal(message.data.user_id)">Ответить</button></td>
+                    <td>
+                        <button class="ui primary button" id="show-modal" @click="openModal(message.data.user_id)">Ответить</button>
+                    </td>
                 </tr>
             </table>
-            <pagination
-                    :currentPage="currentPage"
-                    :lastPage="lastPage"
-                    :url="url"
-                    :perPage="perPage"
-                    :total="total"></pagination>
+            <pagination :currentPage="currentPage" :lastPage="lastPage" :url="url" :perPage="perPage" :total="total"></pagination>
         </div>
-        <message-modal v-if="showModal">
+        <!-- <message-modal v-if="showModal">
             <div slot="header">
                 Написать сообщение пользователю
             </div>
@@ -47,7 +46,26 @@
                 <button class="btn btn-success" @click="reply()">Отправить</button>
                 <button class="btn btn-danger" @click="closeModal()">Закрыть</button>
             </div>
-        </message-modal>
+        </message-modal> -->
+
+
+        <sui-modal v-model="showModal">
+            <sui-modal-header>Написать сообщение пользователю</sui-modal-header>
+            <sui-modal-content>
+                <sui-modal-description class="ui form">
+                    <textarea class="form-control" v-model="message" cols="30" rows="10"></textarea>
+                </sui-modal-description>
+            </sui-modal-content>
+            <sui-modal-actions>
+                <sui-button floated="right" negative @click="closeModal()">
+                    Закрыть
+                </sui-button>
+                <sui-button floated="right" positive @click="reply()">
+                    Отправить
+                </sui-button>
+
+            </sui-modal-actions>
+        </sui-modal>
     </div>
 </template>
 
@@ -104,7 +122,9 @@
         methods: {
             fetchMessagesList() {
                 this.$store.commit(LOADING);
-                axios.get(`/admin/messages-list`, { params: this.filter }).then((response) => {
+                axios.get(`/api/messages-list`, {
+                    params: this.filter
+                }).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.list = response.data.messages.data;
                     this.totalMessages = response.data.totalMessages;
@@ -118,14 +138,16 @@
             },
 
             reply(index) {
-                const data = { text: this.message };
+                const data = {
+                    text: this.message
+                };
                 this.$store.commit(LOADING);
                 axios
                     .post(`/admin/send-message/${this.currentUserId}`, data)
                     .then((response) => {
-                    console.log(response);
-                    this.$store.commit(LOADING_SUCCESS)
-                })
+                        console.log(response);
+                        this.$store.commit(LOADING_SUCCESS)
+                    })
                     .catch(err => this.$store.commit(LOADING_SUCCESS));
             },
 

@@ -4,7 +4,8 @@ export default {
     path: '/notify',
     name: 'Notify',
     meta: {
-      breadcrumb: 'Нотификация пользователей'
+      breadcrumb: 'Нотификация пользователей',
+      requiresAuth: true
     },
     component: Notify
 };

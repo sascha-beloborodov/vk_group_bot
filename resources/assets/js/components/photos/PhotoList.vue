@@ -87,7 +87,7 @@
         },
 
         created() {
-            axios.get(`/admin/fests/all`).then((response) => {
+            axios.get(`/api/fests/all`).then((response) => {
                 this.$store.commit(LOADING_SUCCESS);
                 this.isLoaded = true;
                 this.cities = response.data;
@@ -115,7 +115,7 @@
                 if (query.page === undefined) {
                     query.page = 1;
                 }
-                axios.get(`/admin/photos?page=${query.page}`).then((response) => {
+                axios.get(`/api/photos?page=${query.page}`).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.isLoaded = true;
                     this.list = response.data.data;

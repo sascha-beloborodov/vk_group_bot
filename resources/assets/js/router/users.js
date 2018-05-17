@@ -7,6 +7,7 @@ export const usersList = {
     name: 'UserList',
     meta: {
       breadcrumb: 'Пользователи',
+      requiresAuth: true
     },
     children: [
       {
@@ -15,7 +16,8 @@ export const usersList = {
         component: User,
         meta: {
           dynamic: true,
-          breadcrumb: user => user.name
+          breadcrumb: user => user.name,
+          requiresAuth: true
         }
       }
     ]

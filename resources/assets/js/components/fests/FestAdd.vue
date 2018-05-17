@@ -85,7 +85,7 @@
                     activities: this.fest.activities
                 };
 
-                axios.put(`/admin/fests`, data).then((response) => {
+                axios.put(`/api/fests`, data).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.$router.push({ name: 'FestList' });
                 }).catch(error => { this.$store.commit(LOADING_SUCCESS); });

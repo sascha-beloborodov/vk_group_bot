@@ -5,6 +5,7 @@ export default {
     name: 'FaqList',
     meta: {
       breadcrumb: 'Вопросы FAQ',
+      requiresAuth: true
     },
     component: FaqList
 }

@@ -8,6 +8,7 @@ export const photoList = {
     name: 'PhotoList',
     meta: {
         breadcrumb: 'Фотоконкурс',
+        requiresAuth: true
     },
     children: [
         {
@@ -17,7 +18,8 @@ export const photoList = {
             meta: {
                 isListHidden: true,
                 dynamic: true,
-                breadcrumb: () => 'Добавить фото'
+                breadcrumb: () => 'Добавить фото',
+                requiresAuth: true
             }
         },
         {
@@ -27,7 +29,8 @@ export const photoList = {
             meta: {
                 isListHidden: false,
                 dynamic: true,
-                breadcrumb: photo => photo.id
+                breadcrumb: photo => photo.id,
+                requiresAuth: true
             }
         },
     ]

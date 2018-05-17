@@ -11,12 +11,12 @@
 |
  */
 
-// $logs = DB::connection('mongodb')->collection('logs')->insert(['request' => 'vk-bot']);
 
 Route::get('/', function () {
-
 	return view('welcome');
 });
+
+
 
 Route::get('admin/login', 'Auth\\AdminLoginController@showLoginForm');
 
@@ -64,12 +64,3 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
     Route::post('participants/{id}', 'ParticipantController@edit');
     Route::put('participants', 'ParticipantController@create');
 });
-
-//Route::get('admin', function () {
-//	if (\Illuminate\Support\Facades\Auth::check()) {
-//		return redirect('admin/home');
-//	}
-//	return redirect('admin/login');
-//});
-
-//Auth::routes();

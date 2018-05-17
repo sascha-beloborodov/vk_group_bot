@@ -165,9 +165,9 @@
         methods: {
             fetchData() {
                 this.$store.commit(LOADING);
-                axios.get('/admin/cities').then((response) => {
+                axios.get('/api/cities').then((response) => {
                     this.cities = response.data;
-                    axios.get('/admin/notifications').then((response) => {
+                    axios.get('/api/notifications').then((response) => {
                         this.notifications = response.data.data;
 
                         this.currentPage = response.data.current_page;
@@ -185,7 +185,7 @@
                     this.$toastr.e("Вы не ввели сообщение или город")
                 } else {
                     this.error = false;
-                    axios.post('/admin/notify', { text: this.text, cityId: this.currentCity.id, activity: this.checkedActivity ? 1 : 0, activities: this.currentActivities }).then((response) => {
+                    axios.post('/api/notify', { text: this.text, cityId: this.currentCity.id, activity: this.checkedActivity ? 1 : 0, activities: this.currentActivities }).then((response) => {
                         this.closeModal();
                         this.$toastr.s("Сообщения начитнают рассылаться");
                         this.text = '';
@@ -211,7 +211,7 @@
             setUsersCount() {
                 this.$store.commit(LOADING);
                 const activity = this.checkedActivity ? 1 : 0;
-                axios.get(`/admin/usersCount`, { params: { cityId: this.currentCity.id, activity: activity, activities: this.currentActivities} }).then((response) => {
+                axios.get(`/api/usersCount`, { params: { cityId: this.currentCity.id, activity: activity, activities: this.currentActivities} }).then((response) => {
                     this.usersCount = response.data.count;
                     this.cityActivities = response.data.city ? response.data.city.activities : [];
                     this.$store.commit(LOADING_SUCCESS);

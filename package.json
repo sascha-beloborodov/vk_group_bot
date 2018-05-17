@@ -24,6 +24,8 @@
     },
     "dependencies": {
         "moment": "^2.20.1",
+        "semantic-ui-vue": "^0.2.10",
+        "semantic-ui-css": "2.3.1",
         "toastr": "^2.1.4",
         "vee-validate": "^2.0.3",
         "vue-router": "^3.0.1",

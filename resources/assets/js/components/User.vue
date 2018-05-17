@@ -141,7 +141,7 @@
         methods: {
             fetchUserData() {
                 this.$store.commit(LOADING);
-                axios.get(`/admin/users/${this.$route.params.id}`).then((response) => {
+                axios.get(`/api/users/${this.$route.params.id}`).then((response) => {
                     this.isLoaded = true;
                     this.user = response.data.user;
 
@@ -155,7 +155,7 @@
                 if (query.page === undefined) {
                     query.page = 1;
                 }
-                axios.get(`/admin/users/${this.$route.params.id}/messages?page=${query.page}`, { params: this.filter }).then((response) => {
+                axios.get(`/api/users/${this.$route.params.id}/messages?page=${query.page}`, { params: this.filter }).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.isLoaded = true;
                     this.messages = response.data.messages.data;

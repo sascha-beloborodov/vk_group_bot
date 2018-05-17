@@ -8,6 +8,7 @@ export const participantList = {
     name: 'ParticipantList',
     meta: {
         breadcrumb: 'Участники голосования',
+        requiresAuth: true
     },
     children: [
         {
@@ -17,7 +18,8 @@ export const participantList = {
             meta: {
                 isListHidden: true,
                 dynamic: true,
-                breadcrumb: () => 'Добавить участников'
+                breadcrumb: () => 'Добавить участников',
+                requiresAuth: true
             }
         },
         {
@@ -27,7 +29,8 @@ export const participantList = {
             meta: {
                 isListHidden: false,
                 dynamic: true,
-                breadcrumb: participant => participant.id
+                breadcrumb: participant => participant.id,
+                requiresAuth: true
             }
         },
     ]

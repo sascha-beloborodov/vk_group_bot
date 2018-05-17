@@ -72,7 +72,7 @@
         methods: {
             fetchData() {
                 this.$store.commit(LOADING);
-                axios.get(`/admin/fests/${this.$route.params.id}`).then((response) => {
+                axios.get(`/api/fests/${this.$route.params.id}`).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.isLoaded = true;
                     this.fest = Object.assign(this.fest, response.data);
@@ -93,7 +93,7 @@
                     activities: this.fest.activities
                 };
 
-                axios.post(`/admin/fests/${this.$route.params.id}`, data).then((response) => {
+                axios.post(`/api/fests/${this.$route.params.id}`, data).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.$router.push({ name: 'FestList' });
                 }).catch(error => { this.$store.commit(LOADING_SUCCESS); });
