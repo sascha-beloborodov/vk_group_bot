@@ -96,11 +96,17 @@ class NotifyController extends AppBaseController
         if (empty($request->get('text')) || !(int) $request->get('cityId')) {
             return $this->sendError('Не заполнены поля');
         }
-        $recipientsCount = DB
+
+        $recipientsCountQuery = DB
             ::connection('mongodb')
             ->collection('subscribers')
-            ->groupBy('vk_id')
-            ->count();
+            ->groupBy('vk_id');
+
+        if ((int) $request->get('cityId')) {
+            $recipientsCountQuery = $recipientsCountQuery->where('city_id', (int) $request->get('cityId'));
+        }
+        $recipientsCount = $recipientsCountQuery->count();
+            
         $insertedId = DB::connection('mongodb')->collection('moment_notifications')->insertGetId([
             'created_at' => Carbon::now(new \DateTimeZone('Europe/Moscow'))->format('Y-m-d H:i:s'),
             'created_at_utc' => Carbon::now(new \DateTimeZone('utc'))->format('Y-m-d H:i:s'),
