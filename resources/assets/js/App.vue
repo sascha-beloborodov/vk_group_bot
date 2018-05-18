@@ -35,6 +35,24 @@
                     <router-link to="/participants"><i class="fa fa-home"></i>Участники голосования</router-link>
                 </li>
 
+                <br><hr><br>
+                <h4>Sunmar</h4>
+                <li v-bind:class="{ active: $route.path == '/sunmar/users' }">
+                    <router-link to="/sunmar/users"><i class="fa fa-home"></i>Пользователи</router-link>
+                </li>
+
+                <li v-bind:class="{ active: $route.path == '/sunmar/firstTask' }">
+                    <router-link to="/sunmar/firstTask"><i class="fa fa-home"></i>Задание #1</router-link>
+                </li>
+
+                <li v-bind:class="{ active: $route.path == '/sunmar/secondTask' }">
+                    <router-link to="/sunmar/secondTask"><i class="fa fa-home"></i>Задание #2</router-link>
+                </li>
+
+                <li v-bind:class="{ active: $route.path == '/sunmar/thirdTask' }">
+                    <router-link to="/sunmar/thirdTask"><i class="fa fa-home"></i>Задание #3</router-link>
+                </li>
+
             </ul>
             <!-- /.sidebar-menu -->
         </section>
