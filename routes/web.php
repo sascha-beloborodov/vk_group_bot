@@ -43,6 +43,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
 	Route::get('users/{id}/messages', 'UsersController@usersMessages');
     Route::get('users', 'UsersController@users');
     Route::get('activities/{userId}', 'UsersController@getActivitiesByUserId');
+    Route::get('users/subscribers/cities', 'UsersController@subscriberCities');
 
     Route::get('fests', 'FestController@festLIst');
     Route::get('fests/all', 'FestController@all');
@@ -62,6 +63,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
     Route::get('participants/all', 'ParticipantController@getAll');
     Route::post('participants/{id}', 'ParticipantController@edit');
     Route::put('participants', 'ParticipantController@create');
+
+    Route::get('sunmar/task/{num}', 'SunmarController@getByNum');
+    Route::post('sunmar/task/run/{num}', 'SunmarController@runTask');
+    Route::post('sunmar/task/check/{num}', 'SunmarController@checkTask');
+    
+    
 });
 
 //Route::get('admin', function () {

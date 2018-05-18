@@ -7,8 +7,17 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label for="">Раздел:</label>
-                        <select class="form-control" name="" id="" v-model="filter.currentSection" @change="changeSection">
+                        <select class="form-control" name="" id="" v-model="filter.currentSection" @change="changeFilter">
                             <option :value="section" v-for="section in filter.types">{{typesMap[section]}}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="">Город:</label>
+                        <select class="form-control" name="" id="" v-model="filter.currentCity" @change="changeFilter">
+                            <option :value="city" v-for="city in filter.cities">{{city.city}}</option>
                         </select>
                     </div>
                 </div>
@@ -52,7 +61,7 @@
             </div>
 
         </div>
-        <!-- <message-modal v-if="showModal && !user">
+        <message-modal ref="activityModal" v-if="showModal && !user">
             <div slot="header">
                 Список активностей пользователя
             </div>
@@ -75,7 +84,7 @@
             <div slot="footer">
                 <button class="btn btn-danger" @click="closeModal()">Закрыть</button>
             </div>
-        </message-modal> -->
+        </message-modal>
     </div>
 </template>
 
@@ -105,6 +114,8 @@
                 activities: [],
                 filter: {
                     currentSection: 'all',
+                    currentCity: '',
+                    cities: [],
                     types: [
                         'all',
                         'subscribers'
@@ -123,7 +134,8 @@
         },
 
         created() {
-          this.fetchList();
+            this.fetchList();
+            this.fetchCities();
         },
 
         computed: {
@@ -138,10 +150,16 @@
         watch: {
             $route() {
                 this.fetchList();
+                this.fetchCities();
             }
         },
 
         methods: {
+            fetchCities() {
+                axios.get(`/admin/users/subscribers/cities`).then((response) => {
+                    this.filter.cities = response.data;
+                });
+            },
             fetchList() {
                 this.$store.commit(LOADING);
 
@@ -149,7 +167,7 @@
                 if (query.page === undefined) {
                     query.page = 1;
                 }
-                axios.get(`/admin/users?page=${query.page}&type=${this.filter.currentSection}`).then((response) => {
+                axios.get(`/admin/users?page=${query.page}&type=${this.filter.currentSection}&cityId=${this.filter.currentCity.city_id}`).then((response) => {
                     this.$store.commit(LOADING_SUCCESS);
                     this.isLoaded = true;
                     this.list = response.data.users.data;
@@ -159,7 +177,7 @@
                     this.total = response.data.users.total;
                 }).catch(error => { this.$store.commit(LOADING_SUCCESS); });
             },
-            changeSection() {
+            changeFilter() {
                 this.fetchList();
             },
             makeUserUrl(userId) {
@@ -169,7 +187,7 @@
                 if (!user.attempts) {
                     return false;
                 }
-                return user.attempts.attempts >= 3;
+                return user.attempts.attempts >= 2;
             },
             chooseUser(userVkId) {
               this.$router.push({ name: 'User', params: { id: userVkId }});

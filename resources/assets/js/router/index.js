@@ -8,6 +8,7 @@ import Notify from "./notify";
 import {photoList} from "./photos";
 import {festList} from "./fests";
 import {participantList} from "./participants";
+import {sunmar} from "./sunmar";
 
 Vue.use(Router);
 
@@ -19,6 +20,7 @@ export default new Router({
         photoList,
         festList,
         participantList,
-        Notify
+        Notify,
+        sunmar
     ]
 });

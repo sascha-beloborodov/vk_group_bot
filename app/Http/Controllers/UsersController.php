@@ -92,40 +92,65 @@ class UsersController extends AppBaseController
         $type = $request->get('type');
 
         $users = $query->paginate($request->get('per_page', 50));
+        // $limit = 50;
+        // $offset = 0;
+        // $users = $query->skip($offset)->take($limit)->get();
 
-        $userItems = $users->items();
-
-        $swapUser = $users->map(function(&$user) use ($type) {
-            $user['attempts'] = DB
-                ::connection('mongodb')
-                ->collection('faq_attempts')
-                ->where('vk_id', (int) $user['vk_id'])
-                ->first();
-
-            $user['lastMessage'] = DB
-                ::connection('mongodb')
-                ->collection('messages')
-                ->where('data.user_id', (int) $user['vk_id'])
-                ->orderBy('created_at', -1)
-                ->first();
-
-            $user['activities'] = DB
-                ::connection('mongodb')
-                ->collection('activities')
-                ->where('vk_id', (int) $user['vk_id'])
-                ->get();
-
-            if ($type == self::SECTION_SUBSCRIBERS) {
-                $user['subs'] = DB
+        // $userItems = $users->items();
+        // $swapUser = new \Illuminate\Support\Collection;
+        // while($users->count()) {
+            $swapUser = $users->reduce(function($prev, &$user) use ($type, $request) {
+                $user['attempts'] = DB
                     ::connection('mongodb')
-                    ->collection('subscribers')
-                    ->where('vk_id', $user['vk_id'])
+                    ->collection('faq_attempts')
+                    ->where('vk_id', (int) $user['vk_id'])
+                    ->first();
+    
+                $user['lastMessage'] = DB
+                    ::connection('mongodb')
+                    ->collection('messages')
+                    ->where('data.user_id', (int) $user['vk_id'])
                     ->orderBy('created_at', -1)
+                    ->first();
+    
+                $user['activities'] = DB
+                    ::connection('mongodb')
+                    ->collection('activities')
+                    ->where('vk_id', (int) $user['vk_id'])
                     ->get();
-            }
+    
+                if ($type == self::SECTION_SUBSCRIBERS) {
+                    $user['subs'] = DB
+                        ::connection('mongodb')
+                        ->collection('subscribers')
+                        ->where('vk_id', $user['vk_id'])
+                        ->orderBy('created_at', -1)
+                        ->get(['city']);
+                }
+    
+                if ((int) $request->get('cityId')) {
+                    $user['subs'] = DB
+                        ::connection('mongodb')
+                        ->collection('subscribers')
+                        ->where('vk_id', (int) $user['vk_id'])
+                        ->where('city_id', (int) $request->get('cityId'))
+                        ->orderBy('created_at', -1)
+                        ->get(['city']);
+                    if (!empty($user['subs'])) {
+                        $prev->push($user);
+                    }
+                    return $prev;
+                } else {
+                    $prev->push($user);
+                    return $prev;
+                }
 
-            return $user;
-        });
+            }, new \Illuminate\Support\Collection);
+            // $swapUser->concat($swappedUser);
+            // $offset += 50;
+            // $users = $query->skip($offset)->take($limit)->get();
+        // }
+
 
         $swapUser = $swapUser->sortByDesc('lastMessage.created_at')->values()->all();
 
@@ -149,6 +174,15 @@ class UsersController extends AppBaseController
             ->collection('activities')
             ->where('vk_id', (int) $userVkId)
             ->get();
+    }
+
+    public function subscriberCities()
+    {
+        return DB
+            ::connection('mongodb')
+            ->collection('subscribers')
+            ->groupBy('city')
+            ->get(['city', 'city_id']);
     }
 
 }
