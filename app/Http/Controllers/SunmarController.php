@@ -83,7 +83,7 @@ class SunmarController extends AppBaseController
     {
         $tasks = DB::connection('mongodb')
             ->collection('sunmar_tasks')
-            ->where('num', '<>', (int) $num)
+            ->where('num', '<>', (int) $except)
             ->get();
 
         foreach ($tasks as $task) {
