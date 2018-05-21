@@ -19,24 +19,24 @@ use Response;
 class SunmarController extends AppBaseController
 {
     
-    public function runTask($num, Request $request)
+    public function runTask(Request $request)
     {
         if (!$request->get('text')) {
             return response()->json(['message' => 'Нужно отправить хоть какой-нибудь текст'], 422);
         }
-        if (! (int) $num) {
+        if (! (int) $request->get('num')) {
             return response()->json(['message' => 'Что-то пошло не так'], 422);
         }
         $task = DB::connection('mongodb')
                     ->collection('sunmar_tasks')
-                    ->where('num', (int) $num)
+                    ->where('num', (int) $request->get('num'))
                     ->first();
         if ($task) {
             return response()->json(['message' => 'Задание уже было запущено'], 422);
         }
-        $this->createTask((int) $num, $request->get('text'));
-        $this->disableTasks((int) $num);
-        RunTask::dispatch((int) $num, $request->get('text'))->delay(now()->addSecond(1));
+        $this->createTask((int) $request->get('num'), $request->get('text'));
+        $this->disableTasks((int) $request->get('num'));
+        RunTask::dispatch((int) $request->get('num'), $request->get('text'))->delay(now()->addSecond(1));
         return response()->json(['message' => 'Messages begin sending']);
     }
 

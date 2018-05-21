@@ -114,7 +114,7 @@
                     return;
                 }
                 this.$store.commit(LOADING);
-                axios.post(`/admin/sunmar/task/run/1`, {text: this.text, num: this.num}).then((response) => {
+                axios.post(`/admin/sunmar/task/run`, {text: this.text, num: this.num}).then((response) => {
                     this.task = response.data;
                     closeModal();
                     this.$store.commit(LOADING_SUCCESS);
