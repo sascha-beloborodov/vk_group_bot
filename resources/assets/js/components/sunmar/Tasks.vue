@@ -1,9 +1,13 @@
 <template>
     <div>
-        <h4>Первое задание</h4>
-        <div class="form-group" v-if="isLoaded">
-            <button class="btn btn-primary" @click="openModal">Запустить</button>
-            <button class="btn btn-success" @click="checkResults">Проверить результаты</button>
+        <h4>Список заданий</h4>
+        <div class="col-md-9" v-if="isLoaded">
+            <ul>
+                <li v-for="(task, idx) in tasks">{{ task.name}}<br>
+                    <button class="btn btn-primary" @click="openModal(task.num)">Запустить</button>
+                    <button class="btn btn-success" @click="checkResults(task.num)">Проверить результаты</button>
+                </li>
+            </ul>
         </div>
 
         <transition name="modal" v-if="showModal">
@@ -45,9 +49,11 @@
     import { sunmar } from '../../mixins/sunmar';
 
     export default {
+        mixins: [sunmar],
         data() {
             return {
-                task: {},
+                activeTask: {},
+                tasks: [],
                 isLoaded: false,
                 text: '',
                 num: 1
@@ -59,9 +65,43 @@
         methods: {
             fetchData() {
                 this.$store.commit(LOADING);
-                axios.get(`/admin/sunmar/task/1`).then((response) => {
+                axios.get(`/admin/sunmar/tasks`).then((response) => {
+                    for (let i = 0; i < this.tasksInfo.length; i++) {
+                        let hasTask = false;
+                        for (let j = 0; j < response.data; j++) {
+                            if (this.tasksInfo[i].num == response.data[j].num) {
+                                if (response.data[j].is_active == 1) {
+                                    this.activeTask = {
+                                        name: this.tasksInfo[i].name,
+                                        num: this.tasksInfo[i].num,
+                                        text: this.tasksInfo[i].text,
+                                        created_at: response.data[j].created_at_utc,
+                                        is_active: response.data[j].is_active
+                                    };
+                                }
+                                hasTask = true;
+                                this.tasks.push({
+                                    name: this.tasksInfo[i].name,
+                                    num: this.tasksInfo[i].num,
+                                    text: this.tasksInfo[i].text,
+                                    created_at: response.data[j].created_at_utc,
+                                    is_active: response.data[j].is_active
+                                });
+                            }
+                        }
+                        if (hasTask)  {
+                            continue;
+                        }
+                        this.tasks.push({
+                            name: this.tasksInfo[i].name,
+                            num: this.tasksInfo[i].num,
+                            text: this.tasksInfo[i].text,
+                            created_at: null,
+                            is_active: 0
+                        });
+                    }
                     this.isLoaded = true;
-                    this.task = response.data;
+                    
                     this.$store.commit(LOADING_SUCCESS);
                 }).catch(error => {
                     console.warn(error);
@@ -83,10 +123,10 @@
                     this.$store.commit(LOADING_SUCCESS);
                 });
             },
-            checkResults() {
+            checkResults(num) {
                 
                 this.$store.commit(LOADING);
-                axios.post(`/admin/sunmar/task/check/1`, {num: this.num}).then((response) => {
+                axios.post(`/admin/sunmar/task/check/${num}`, {num: num}).then((response) => {
                     console.log(response);
                     this.$store.commit(LOADING_SUCCESS);
                 }).catch(error => {
@@ -94,7 +134,14 @@
                     this.$store.commit(LOADING_SUCCESS);
                 });
             },
-            openModal() {
+            openModal(num) {
+                this.num = num;
+                debugger;
+                this.text = this.tasks.filter((val, idx) => {
+                    if (val.num == num) {
+                        return true;
+                    }
+                })[0].text;
                 this.$store.commit(MODAL_OPEN);
             },
             closeModal() {

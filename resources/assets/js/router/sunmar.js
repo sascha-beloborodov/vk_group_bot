@@ -1,13 +1,8 @@
 import SunmarPage from '../components/sunmar/SunmarPage';
 import SunmarUsers from '../components/sunmar/SunmarUsers';
 
-import FirstTask from '../components/sunmar/FirstTask';
-import SecondTask from '../components/sunmar/SecondTask';
-import ThirdTask from '../components/sunmar/ThirdTask';
-import FourthTask from '../components/sunmar/FourthTask';
-import FifthTask from '../components/sunmar/FifthTask';
-import SixthTask from '../components/sunmar/SixthTask';
-import SeventhTask from '../components/sunmar/SeventhTask';
+import Tasks from '../components/sunmar/Tasks';
+
 
 export const sunmar = {
     path: '/sunmar/',
@@ -28,66 +23,12 @@ export const sunmar = {
             }
         },
         {
-            path: 'firstTask',
-            name: 'FirstTask',
-            component: FirstTask,
+            path: 'tasks',
+            name: 'Tasks',
+            component: Tasks,
             meta: {
                 isListHidden: false,
-                breadcrumb: 'Первое задание'
-            }
-        },
-        {
-            path: 'secondTask',
-            name: 'SecondTask',
-            component: SecondTask,
-            meta: {
-                isListHidden: false,
-                breadcrumb: 'Второе задание'
-            }
-        },
-        {
-            path: 'thirdTask',
-            name: 'thirdTask',
-            component: ThirdTask,
-            meta: {
-                isListHidden: false,
-                breadcrumb: 'Третье задание'
-            }
-        },
-        {
-            path: 'fourthTask',
-            name: 'FourthTask',
-            component: FourthTask,
-            meta: {
-                isListHidden: false,
-                breadcrumb: 'Четвертое задание'
-            }
-        },
-        {
-            path: 'fifthTask',
-            name: 'FifthTask',
-            component: FifthTask,
-            meta: {
-                isListHidden: false,
-                breadcrumb: 'Пятое задание'
-            }
-        },
-        {
-            path: 'sixthTask',
-            name: 'SixthTask',
-            component: SixthTask,
-            meta: {
-                isListHidden: false,
-                breadcrumb: 'Шестое задание'
-            }
-        },
-        {
-            path: 'seventhTask',
-            name: 'SeventhTask',
-            component: SeventhTask,
-            meta: {
-                isListHidden: false,
-                breadcrumb: 'Седьмое задание'
+                breadcrumb: 'Задания'
             }
         },
     ]

@@ -84,6 +84,20 @@ class CheckTask implements ShouldQueue
                         'user_id' => $user['vk_id']
                     ]);
                     Log::info($response);
+                    DB
+                        ::connection('mongodb')
+                        ->collection('sunmar_user')
+                        ->where('completed', 1)
+                        ->where('vk_id'< (int) $user['vk_id'])
+                        ->update(['first_task' => [
+                            'completed' => (int) $response,
+                        ]])
+                        ->update(['first_task.history_checks' => [
+                            '$push' => [
+                                'checked_at_utc' => (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'),
+                                'completed' => (int) $response
+                            ]
+                        ]]);
                     sleep(1);
                 } catch (\Exception $e) {
                     Log::info('Cannot get data for user id - ' . $user['vk_id']);

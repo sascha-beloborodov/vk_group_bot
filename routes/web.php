@@ -64,6 +64,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
     Route::post('participants/{id}', 'ParticipantController@edit');
     Route::put('participants', 'ParticipantController@create');
 
+    Route::get('sunmar/tasks', 'SunmarController@getAllTasks');
     Route::get('sunmar/task/{num}', 'SunmarController@getByNum');
     Route::post('sunmar/task/run/{num}', 'SunmarController@runTask');
     Route::post('sunmar/task/check/{num}', 'SunmarController@checkTask');
@@ -71,11 +72,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
     
 });
 
-//Route::get('admin', function () {
-//	if (\Illuminate\Support\Facades\Auth::check()) {
-//		return redirect('admin/home');
-//	}
-//	return redirect('admin/login');
-//});
+// Route::get('admin', function () {
+// 	if (\Illuminate\Support\Facades\Auth::check()) {
+// 		return redirect('admin');
+// 	}
+// 	return redirect('admin/login');
+// });
 
 //Auth::routes();

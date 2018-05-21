@@ -60,6 +60,11 @@ class SunmarController extends AppBaseController
         return response()->json($task ?? new \stdClass());
     }
 
+    public function getAllTasks(Request $request)
+    {
+        return response()->json(DB::connection('mongodb')->collection('sunmar_tasks')->get());
+    }
+
 
     private function createTask(int $num, string $text)
     {

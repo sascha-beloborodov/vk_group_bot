@@ -41,17 +41,10 @@
                     <router-link to="/sunmar/users"><i class="fa fa-home"></i>Пользователи</router-link>
                 </li>
 
-                <li v-bind:class="{ active: $route.path == '/sunmar/firstTask' }">
-                    <router-link to="/sunmar/firstTask"><i class="fa fa-home"></i>Задание #1</router-link>
+                <li v-bind:class="{ active: $route.path == '/sunmar/tasks' }">
+                    <router-link to="/sunmar/tasks"><i class="fa fa-home"></i>Задания</router-link>
                 </li>
 
-                <li v-bind:class="{ active: $route.path == '/sunmar/secondTask' }">
-                    <router-link to="/sunmar/secondTask"><i class="fa fa-home"></i>Задание #2</router-link>
-                </li>
-
-                <li v-bind:class="{ active: $route.path == '/sunmar/thirdTask' }">
-                    <router-link to="/sunmar/thirdTask"><i class="fa fa-home"></i>Задание #3</router-link>
-                </li>
 
             </ul>
             <!-- /.sidebar-menu -->
