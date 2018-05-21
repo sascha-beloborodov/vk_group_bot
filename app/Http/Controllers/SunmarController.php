@@ -65,6 +65,14 @@ class SunmarController extends AppBaseController
         return response()->json(DB::connection('mongodb')->collection('sunmar_tasks')->get());
     }
 
+    public function deleteData(Request $request)
+    {
+        DB::connection('mongodb')->collection('sunmar_tasks')->delete();
+        DB::connection('mongodb')->collection('state')->delete();
+        DB::connection('mongodb')->collection('sunmar_user')->delete();
+        return response()->json(['message' => '']);
+    }
+
 
     private function createTask(int $num, string $text)
     {

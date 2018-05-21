@@ -1,9 +1,19 @@
 <template>
     <div>
         <h4>Список заданий</h4>
+        <button class="btn btn-danger" @click="deleteAll">Удалить инфо</button>
         <div class="col-md-9" v-if="isLoaded">
             <ul>
                 <li v-for="(task, idx) in tasks">{{ task.name}}<br>
+                    <div>
+                        {{task.name}}
+                    </div>
+                    <div>
+                        {{task.created_at ? 'Запускалась - ' + task.created_at : 'Не запускалась' }}
+                    </div>
+                    <div>
+                        {{task.is_active ? 'Активна': 'Не Активна' }}
+                    </div>
                     <button class="btn btn-primary" @click="openModal(task.num)">Запустить</button>
                     <button class="btn btn-success" @click="checkResults(task.num)">Проверить результаты</button>
                 </li>
@@ -63,12 +73,27 @@
             this.fetchData();
         },
         methods: {
+            deleteAll() {
+                this.$store.commit(LOADING);
+                this.isLoaded = false;
+                axios.delete(`/admin/sunmar`).then((response) => {
+                    this.isLoaded = true;
+                    this.$store.commit(LOADING_SUCCESS);
+                    this.fetchData();
+                }).catch(error => {
+                    console.warn(error);
+                    this.$store.commit(LOADING_SUCCESS);
+                    this.fetchData();
+                });
+
+                
+            },
             fetchData() {
                 this.$store.commit(LOADING);
                 axios.get(`/admin/sunmar/tasks`).then((response) => {
                     for (let i = 0; i < this.tasksInfo.length; i++) {
                         let hasTask = false;
-                        for (let j = 0; j < response.data; j++) {
+                        for (let j = 0; j < response.data.length; j++) {
                             if (this.tasksInfo[i].num == response.data[j].num) {
                                 if (response.data[j].is_active == 1) {
                                     this.activeTask = {
