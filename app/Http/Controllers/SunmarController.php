@@ -41,13 +41,13 @@ class SunmarController extends AppBaseController
     }
 
 
-    public function checkTask($num, Request $request)
+    public function checkTask(Request $request)
     {
-        if (! (int) $num) {
+        if (! (int) $request->get('num')) {
             return response()->json(['message' => 'Что-то пошло не так'], 422);
         }
-        dump($num);
-        CheckTask::dispatch((int) $num)->delay(now()->addSecond(1));
+        
+        CheckTask::dispatch((int) $num, $request->get('token'))->delay(now()->addSecond(1));
         return response()->json(['message' => '']);
     }
 
@@ -73,6 +73,18 @@ class SunmarController extends AppBaseController
         return response()->json(['message' => '']);
     }
 
+
+    public function getUsers(Request $request)
+    {
+        $users = DB::connection('mongodb')
+            ->collection('sunmar_user')
+            ->paginate(50);
+
+        return response()
+            ->json([
+                'users' => $users
+            ]);
+    }
 
     private function createTask(int $num, string $text)
     {

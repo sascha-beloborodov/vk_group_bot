@@ -2,11 +2,12 @@
     <div>
         <h4>Список заданий</h4>
         <button class="btn btn-danger" @click="deleteAll">Удалить инфо</button>
+        <button class="btn btn-primary" @click="getToken">Получить токен</button>
         <div class="col-md-9" v-if="isLoaded">
             <ul>
                 <li v-for="(task, idx) in tasks">{{ task.name}}<br>
                     <div>
-                        {{task.name}}
+                        {{task.text}}
                     </div>
                     <div>
                         {{task.created_at ? 'Запускалась - ' + task.created_at : 'Не запускалась' }}
@@ -15,7 +16,7 @@
                         {{task.is_active ? 'Активна': 'Не Активна' }}
                     </div>
                     <button class="btn btn-primary" @click="openModal(task.num)">Запустить</button>
-                    <button class="btn btn-success" @click="checkResults(task.num)">Проверить результаты</button>
+                    <button class="btn btn-success" @click="checkResults(task.num)" v-if="task.checkButton">Проверить результаты</button>
                 </li>
             </ul>
         </div>
@@ -26,13 +27,20 @@
                     <div class="modal-container">
                         <div class="modal-header">
                             <slot name="header">
-                                Запуск задания #1
+                                Запуск задания #{num}
                             </slot>
                         </div>
 
                         <div class="modal-body">
                             <slot name="body">
-                                <textarea class="form-control" v-model="text" cols="30" rows="10"></textarea>
+                                <div class="form-group">
+                                    <label for="">Сообщение</label>
+                                    <textarea class="form-control" v-model="text" cols="30" rows="10"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Токен</label>
+                                    <input type="text" v-model="token" class="form-control">
+                                </div>
                             </slot>
                         </div>
 
@@ -66,13 +74,17 @@
                 tasks: [],
                 isLoaded: false,
                 text: '',
-                num: 1
+                num: 1,
+                token: ''
             };
         },
         created() {
             this.fetchData();
         },
         methods: {
+            neededToken() {
+                return this.num == 3 || this.num == 2;
+            },
             deleteAll() {
                 this.$store.commit(LOADING);
                 this.isLoaded = false;
@@ -85,8 +97,6 @@
                     this.$store.commit(LOADING_SUCCESS);
                     this.fetchData();
                 });
-
-                
             },
             fetchData() {
                 this.$store.commit(LOADING);
@@ -110,7 +120,8 @@
                                     num: this.tasksInfo[i].num,
                                     text: this.tasksInfo[i].text,
                                     created_at: response.data[j].created_at_utc,
-                                    is_active: response.data[j].is_active
+                                    is_active: response.data[j].is_active,
+                                    checkButton: this.tasksInfo[i].checkButton,
                                 });
                             }
                         }
@@ -122,7 +133,8 @@
                             num: this.tasksInfo[i].num,
                             text: this.tasksInfo[i].text,
                             created_at: null,
-                            is_active: 0
+                            is_active: 0,
+                            checkButton: this.tasksInfo[i].checkButton,
                         });
                     }
                     this.isLoaded = true;
@@ -138,6 +150,7 @@
                     this.$toastr.e('Нельзя отправить пустой текст');
                     return;
                 }
+
                 this.$store.commit(LOADING);
                 axios.post(`/admin/sunmar/task/run`, {text: this.text, num: this.num}).then((response) => {
                     this.task = response.data;
@@ -149,9 +162,12 @@
                 });
             },
             checkResults(num) {
-                
+                if (this.neededToken()) {
+                    this.$toastr.e('Для этого заданяи нужен токен');
+                    return;
+                }
                 this.$store.commit(LOADING);
-                axios.post(`/admin/sunmar/task/check/${num}`, {num: num}).then((response) => {
+                axios.post(`/admin/sunmar/task/check`, {num: num, token: this.token}).then((response) => {
                     console.log(response);
                     this.$store.commit(LOADING_SUCCESS);
                 }).catch(error => {
@@ -161,7 +177,6 @@
             },
             openModal(num) {
                 this.num = num;
-                debugger;
                 this.text = this.tasks.filter((val, idx) => {
                     if (val.num == num) {
                         return true;
@@ -171,6 +186,9 @@
             },
             closeModal() {
                 this.$store.commit(MODAL_CLOSE);
+            },
+            getToken() {
+                window.open('http://dev-kfc-bot-admin.grapheme.ru/vk_auth');
             }
         },
         computed: {
