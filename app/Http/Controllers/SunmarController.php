@@ -34,6 +34,7 @@ class SunmarController extends AppBaseController
         if (!$task) {
             $this->createTask((int) $request->get('num'), $request->get('text'));
         }
+        DB::connection('mongodb')->collection('sunmar_tasks')->where(['_id' => $task['_id']])->update(['is_active' => 1]);
         $this->disableTasks((int) $request->get('num'));
         RunTask::dispatch((int) $request->get('num'), $request->get('text'))->delay(now()->addSecond(1));
         return response()->json(['message' => 'Messages begin sending']);
