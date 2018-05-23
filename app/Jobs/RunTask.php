@@ -55,7 +55,7 @@ class RunTask implements ShouldQueue
                 DB::connection('mongodb')
                     ->collection('state')
                     ->where('vk_id', (int) $participant['vk_id'])
-                    ->update(['data.task' => $this->num]);
+                    ->update(['data.task' => $this->num, 'section' => 'sunmar']);
                 try {
                     vkApi_messagesSend($participant['vk_id'], $this->text);
                     sleep(1);
