@@ -85,6 +85,13 @@ class SunmarController extends AppBaseController
             ]);
     }
 
+    /**
+     * Create new task
+     *
+     * @param integer $num
+     * @param string $text
+     * @return void
+     */
     private function createTask(int $num, string $text)
     {
         DB::connection('mongodb')
@@ -98,18 +105,17 @@ class SunmarController extends AppBaseController
             ]);
     }
 
+    /**
+     * Disable other tasks exept that ran 
+     *
+     * @param integer $except
+     * @return void
+     */
     private function disableTasks(int $except)
     {
-        $tasks = DB::connection('mongodb')
+        DB::connection('mongodb')
             ->collection('sunmar_tasks')
-            ->where('num', '<>', (int) $except)
-            ->get();
-
-        foreach ($tasks as $task) {
-            DB::connection('mongodb')
-                ->collection('sunmar_tasks')
-                ->where('num', (int) $task['num'])
-                ->update(['is_active' => 0]);
-        }
+            ->where('num', '<>',(int) $task['num'])
+            ->update(['is_active' => 0]);
     }
 }
