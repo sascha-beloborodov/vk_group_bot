@@ -46,7 +46,7 @@ class SunmarController extends AppBaseController
             return response()->json(['message' => 'Что-то пошло не так'], 422);
         }
         
-        CheckTask::dispatch((int) $num, $request->get('token'))->delay(now()->addSecond(1));
+        CheckTask::dispatch((int) $request->get('num'), $request->get('token'))->delay(now()->addSecond(1));
         return response()->json(['message' => '']);
     }
 
