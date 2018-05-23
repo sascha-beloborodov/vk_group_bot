@@ -31,10 +31,9 @@ class SunmarController extends AppBaseController
                     ->collection('sunmar_tasks')
                     ->where('num', (int) $request->get('num'))
                     ->first();
-        if ($task) {
-            return response()->json(['message' => 'Задание уже было запущено'], 422);
+        if (!$task) {
+            $this->createTask((int) $request->get('num'), $request->get('text'));
         }
-        $this->createTask((int) $request->get('num'), $request->get('text'));
         $this->disableTasks((int) $request->get('num'));
         RunTask::dispatch((int) $request->get('num'), $request->get('text'))->delay(now()->addSecond(1));
         return response()->json(['message' => 'Messages begin sending']);
