@@ -1,8 +1,15 @@
 <template>
     <div>
         <h4>Список заданий</h4>
-        <button class="btn btn-danger" @click="deleteAll">Удалить инфо</button>
-        <button class="btn btn-primary" @click="getToken">Получить токен</button>
+        <div class="col-md-9">
+            <button class="btn btn-danger" @click="deleteAll">Удалить инфо</button>
+            <button class="btn btn-primary" @click="getToken">Получить токен</button>
+            <br><br>
+            <div class="form-group">
+                <label for="">Токен</label>
+                <input type="text" class="form-control" v-model="token">
+            </div>
+        </div>
         <div class="col-md-9" v-if="isLoaded">
             <ul>
                 <li v-for="(task, idx) in tasks">{{ task.name}}<br>
@@ -27,7 +34,7 @@
                     <div class="modal-container">
                         <div class="modal-header">
                             <slot name="header">
-                                Запуск задания #{num}
+                                Запуск задания #{{num}}
                             </slot>
                         </div>
 
@@ -162,8 +169,8 @@
                 });
             },
             checkResults(num) {
-                if (this.neededToken()) {
-                    this.$toastr.e('Для этого заданяи нужен токен');
+                if (this.neededToken() && !this.token.length) {
+                    this.$toastr.e('Для этого задания нужен токен');
                     return;
                 }
                 this.$store.commit(LOADING);

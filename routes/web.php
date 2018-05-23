@@ -76,17 +76,18 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
 
 use ATehnix\VkClient\Auth;
 use ATehnix\VkClient\Client;
+use Illuminate\Http\Request;
 
 Route::get('vk_auth', function(Request $request) {
 	$api = new Client;
 	$auth = new Auth('6485912', 'nbRl9L4vQsLwmR9yS7tN', 'http://dev-kfc-bot-admin.grapheme.ru/vk_auth');
-	echo "<a href='{$auth->getUrl()}'>ClickMe<a>";
+	echo "<a href='{$auth->getUrl()}'>ClickMe<a><br>";
 	$token = '-';
 	if ($request->get('code')) {
 		$token = $auth->getToken($request->get('code'));
 	}
 //	$api->setDefaultToken($token);
-	echo $token;
+	echo 'Токен<br>' . $token;
 });
 
 // Route::get('admin', function () {
