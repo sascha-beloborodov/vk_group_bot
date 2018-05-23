@@ -22,9 +22,6 @@ class CheckTask implements ShouldQueue
     const SIXTH_TASK = 6;
     const SEVENTH_TASK = 7;
 
-    const GROUP_ID = 166541174;
-    const SUNMAR_KEYWORD = '#sumatra';
-
     public $num;
 
     public $token;
@@ -131,7 +128,7 @@ class CheckTask implements ShouldQueue
                     foreach ($response['items'] as $item) {
                         if (!empty($item['copy_history']) && is_array($item['copy_history'])) {
                             foreach ($item['copy_history'] as $source) {
-                                if (!empty($source['owner_id']) && abs($source['owner_id']) == self::SUNMAR_GROUP_ID) {
+                                if (!empty($source['owner_id']) && abs($source['owner_id']) == config('app.sunmar_group_id')) {
                                     DB
                                         ::connection('mongodb')
                                         ->collection('sunmar_user')
@@ -197,7 +194,7 @@ class CheckTask implements ShouldQueue
                                 if (!empty($attachment['type']) &&
                                     $attachment['type'] == 'photo' && 
                                     !empty($attachment['photo']['text']) &&
-                                    stripos($attachment['photo']['text'], self::SUNMAR_KEYWORD) !== false)
+                                    stripos($attachment['photo']['text'], config('app.sunmar_group_id')) !== false)
                                 {
                                     $exit = true;
                                     DB
