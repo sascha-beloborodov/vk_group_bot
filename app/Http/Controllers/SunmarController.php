@@ -116,7 +116,7 @@ class SunmarController extends AppBaseController
     {
         DB::connection('mongodb')
             ->collection('sunmar_tasks')
-            ->where('num', '<>',(int) $task['num'])
+            ->where('num', '<>',(int) $except)
             ->update(['is_active' => 0]);
     }
 }
