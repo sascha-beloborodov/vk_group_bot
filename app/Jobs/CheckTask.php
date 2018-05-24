@@ -78,6 +78,7 @@ class CheckTask implements ShouldQueue
                         'group_id' => self::GROUP_ID,
                         'user_id' => $user['vk_id']
                     ]);
+                    sleep(1);
                     Log::info($response);
                     DB
                         ::connection('mongodb')
@@ -93,8 +94,9 @@ class CheckTask implements ShouldQueue
                                 'completed' => (int) $response
                             ]
                         ]]);
-                    sleep(1);
+                    
                 } catch (\Exception $e) {
+                    sleep(1);
                     Log::info('Cannot get data for user id - ' . $user['vk_id']);
                     continue;
                 }
@@ -111,18 +113,24 @@ class CheckTask implements ShouldQueue
         $users = $this->getSunmarUsers($usersLimit, $usersOffset);
         while ($users->count()) {
             foreach ($users as $user) {
-
-
                 $limit = 100;
                 $offset = 0;
-                $response = _vkApi_call('wall.get', [
-                    'owner_id' => $user['vk_id'],
-                    'offset' => $offset,
-                    'count' => $limit,
-                    'filter' => 'owner'
-                ], $this->token);
-                $exit = false;
+                try {
+                    $response = $this->executeVKRequest('wall.get', [
+                        'owner_id' => $user['vk_id'],
+                        'offset' => $offset,
+                        'count' => $limit,
+                        'filter' => 'owner'
+                    ]);
+                    sleep(1);
+                } catch (\Exception $e) {
+                    sleep(1);
+                    Log::info('Cannot get data for user id - ' . $user['vk_id']);
+                    continue;
+                }
 
+                $exit = false;
+                sleep(1);
                 while (isset($response['count']) && $response['count'] > 0 && isset($response['items'])) {
                     if ($exit) break;
                     foreach ($response['items'] as $item) {
@@ -151,18 +159,18 @@ class CheckTask implements ShouldQueue
                     }
             
                     $offset += $limit;
-                    $response = _vkApi_call('wall.get', [
+                    $response = $this->executeVKRequest('wall.get', [
                         'owner_id' => $user['vk_id'],
                         'offset' => $offset,
                         'count' => $limit,
                         'filter' => 'owner'
-                    ], $this->token);
+                    ]);
+                    sleep(1);
                 }
             }
             $usersOffset += $usersLimit;
             $users = $this->getSunmarUsers($usersLimit, $usersOffset);
         }
-
     }
 
     private function handleThirdTask()
@@ -172,16 +180,21 @@ class CheckTask implements ShouldQueue
         $users = $this->getSunmarUsers($usersLimit, $usersOffset);
         while ($users->count()) {
             foreach ($users as $user) {
-
-
                 $limit = 100;
                 $offset = 0;
-                $response = _vkApi_call('wall.get', [
-                    'owner_id' => $user['vk_id'],
-                    'offset' => $offset,
-                    'count' => $limit,
-                    'filter' => 'owner'
-                ], $this->token);
+                try {
+                    $response = $this->executeVKRequest('wall.get', [
+                        'owner_id' => $user['vk_id'],
+                        'offset' => $offset,
+                        'count' => $limit,
+                        'filter' => 'owner'
+                    ]);
+                    sleep(1);
+                } catch (\Exception $e) {
+                    sleep(1);
+                    Log::info('Cannot get data for user id - ' . $user['vk_id']);
+                    continue;
+                }
                 $exit = false;
 
                 while (isset($response['count']) && $response['count'] > 0 && isset($response['items'])) {
@@ -218,12 +231,13 @@ class CheckTask implements ShouldQueue
                     }
            
                     $offset += $limit;
-                    $response = _vkApi_call('wall.get', [
+                    $response = $this->executeVKRequest('wall.get', [
                         'owner_id' => $user['vk_id'],
                         'offset' => $offset,
                         'count' => $limit,
                         'filter' => 'owner'
-                    ], $this->token);
+                    ]);
+                    sleep(1);
                 }
             }
             $usersOffset += $usersLimit;
@@ -231,6 +245,18 @@ class CheckTask implements ShouldQueue
         }
     }
 
+    private function executeVKRequest(string $method, array $params) :array
+    {
+        return _vkApi_call($method, $params, $this->token);
+    }
+
+    /**
+     * Paginate users
+     *
+     * @param integer $limit
+     * @param integer $offset
+     * @return \Illuminate\Support\Collection
+     */
     private function getSunmarUsers(int $limit, int $offset): \Illuminate\Support\Collection
     {
         return DB
