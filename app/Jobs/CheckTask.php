@@ -34,7 +34,7 @@ class CheckTask implements ShouldQueue
     public function __construct(int $num, $token = null)
     {
         Log::useFiles(storage_path().'/logs/check_task.log');
-        Log::info('task fall');
+        Log::info('task fall - ' . $num);
         $this->num = $num;
         $this->token = $token;
     }
@@ -83,11 +83,13 @@ class CheckTask implements ShouldQueue
                     DB
                         ::connection('mongodb')
                         ->collection('sunmar_user')
-                        ->where('completed', 1)
-                        ->where('vk_id'< (int) $user['vk_id'])
-                        ->update(['first_task' => [
-                            'completed' => (int) $response,
-                        ]])
+                        ->where('vk_id', (int) $user['vk_id'])
+                        ->update(['first_task.completed' => (int) $response, 'current_tasks_completed' => 1]);
+
+                    DB
+                        ::connection('mongodb')
+                        ->collection('sunmar_user')
+                        ->where('vk_id', (int) $user['vk_id'])
                         ->update(['first_task.history_checks' => [
                             '$push' => [
                                 'checked_at_utc' => (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'),
@@ -122,6 +124,8 @@ class CheckTask implements ShouldQueue
                         'count' => $limit,
                         'filter' => 'owner'
                     ]);
+                    Log::info('response');
+                    Log::info($response);
                     sleep(1);
                 } catch (\Exception $e) {
                     sleep(1);
@@ -132,16 +136,26 @@ class CheckTask implements ShouldQueue
                 $exit = false;
                 sleep(1);
                 while (isset($response['count']) && $response['count'] > 0 && isset($response['items'])) {
-                    if ($exit) break;
+                    Log::info('items');
+                    Log::info($response['items']);
                     foreach ($response['items'] as $item) {
                         if (!empty($item['copy_history']) && is_array($item['copy_history'])) {
+                            Log::info('copy_history');
+                            Log::info($item['copy_history']);
                             foreach ($item['copy_history'] as $source) {
+                                Log::info('source');
+                                Log::info($source['owner_id']);
+                                Log::info('group id ' . config('app.sunmar_group_id'));
+                                Log::info('user id ' . $user['vk_id']);
+
                                 if (!empty($source['owner_id']) && abs($source['owner_id']) == config('app.sunmar_group_id')) {
+                                    Log::info('save');
+
                                     DB
                                         ::connection('mongodb')
                                         ->collection('sunmar_user')
                                         ->where('vk_id', (int) $user['vk_id'])
-                                        ->update(['second_task.completed' => 1]);
+                                        ->update(['second_task.completed' => 1, 'current_tasks_completed' => 1]);
                                     DB
                                         ::connection('mongodb')
                                         ->collection('sunmar_user')
@@ -157,7 +171,7 @@ class CheckTask implements ShouldQueue
                             }
                         }
                     }
-            
+                    if ($exit) break;
                     $offset += $limit;
                     $response = $this->executeVKRequest('wall.get', [
                         'owner_id' => $user['vk_id'],
@@ -165,6 +179,8 @@ class CheckTask implements ShouldQueue
                         'count' => $limit,
                         'filter' => 'owner'
                     ]);
+                    Log::info('response while');
+                    Log::info($response);
                     sleep(1);
                 }
             }
@@ -189,6 +205,8 @@ class CheckTask implements ShouldQueue
                         'count' => $limit,
                         'filter' => 'owner'
                     ]);
+                    Log::info('3 response');
+                    Log::info($response);
                     sleep(1);
                 } catch (\Exception $e) {
                     sleep(1);
@@ -198,23 +216,27 @@ class CheckTask implements ShouldQueue
                 $exit = false;
 
                 while (isset($response['count']) && $response['count'] > 0 && isset($response['items'])) {
-                    if ($exit) break;
-
+                    Log::info('3 items');
+                    Log::info($response['items']);
                     foreach ($response['items'] as $item) {
+                        Log::info('3 item');
+                        Log::info($item);
                         if (!empty($item['post_type']) && $item['post_type'] != 'post') continue;
                         if (!empty($item['attachments']) && is_array($item['attachments'])) {
                             foreach ($item['attachments'] as $attachment) {
                                 if (!empty($attachment['type']) &&
                                     $attachment['type'] == 'photo' && 
                                     !empty($attachment['photo']['text']) &&
-                                    stripos($attachment['photo']['text'], config('app.sunmar_group_id')) !== false)
+                                    (stripos($attachment['photo']['text'], config('app.sunmar_keyword')) !== false ||
+                                    stripos($item['text'], config('app.sunmar_keyword')) !== false)
+                                    )
                                 {
                                     $exit = true;
                                     DB
                                         ::connection('mongodb')
                                         ->collection('sunmar_user')
                                         ->where('vk_id', (int) $user['vk_id'])
-                                        ->update(['third_task.completed' => 1]);
+                                        ->update(['third_task.completed' => 1, 'current_tasks_completed' => 1]);
                                     DB
                                         ::connection('mongodb')
                                         ->collection('sunmar_user')
@@ -229,7 +251,7 @@ class CheckTask implements ShouldQueue
                             }
                         }
                     }
-           
+                    if ($exit) break;
                     $offset += $limit;
                     $response = $this->executeVKRequest('wall.get', [
                         'owner_id' => $user['vk_id'],
