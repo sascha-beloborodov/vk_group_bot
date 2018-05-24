@@ -282,7 +282,7 @@ class CheckTask implements ShouldQueue
                 try {
                     // todo make cache
                     $response = $this->executeVKRequest('wall.getComments', [
-                        'owner_id' => config('app.sunmar_group_id'),
+                        'owner_id' => '-' . config('app.sunmar_group_id'),
                         'post_id' => config('app.sunmar_post_id'),
                         'offset' => $offset,
                         'count' => $limit,
@@ -298,53 +298,43 @@ class CheckTask implements ShouldQueue
                 }
                 $exit = false;
 
-                // while (isset($response['count']) && $response['count'] > 0 && isset($response['items'])) {
-                //     Log::info('3 items');
-                //     Log::info($response['items']);
-                //     foreach ($response['items'] as $item) {
-                //         Log::info('3 item');
-                //         Log::info($item);
-                //         if (empty($item['post_type']) || $item['post_type'] != 'post') continue;
-                //         // Log::info('3 attachments');
-                //         // Log::info($item['attachments']);
-                //         if (!empty($item['attachments']) && is_array($item['attachments'])) {
-                //             foreach ($item['attachments'] as $attachment) {
-                //                 if (!empty($attachment['type']) &&
-                //                     $attachment['type'] == 'photo' && 
-                //                     (stripos($attachment['photo']['text'], config('app.sunmar_keyword')) !== false ||
-                //                     stripos($item['text'], config('app.sunmar_keyword')) !== false)
-                //                     )
-                //                 {
-                //                     $exit = true;
-                //                     DB
-                //                         ::connection('mongodb')
-                //                         ->collection('sunmar_user')
-                //                         ->where('vk_id', (int) $user['vk_id'])
-                //                         ->update(['third_task.completed' => 1, 'current_tasks_completed' => 1]);
-                //                     DB
-                //                         ::connection('mongodb')
-                //                         ->collection('sunmar_user')
-                //                         ->where('vk_id', (int) $user['vk_id'])
-                //                         ->update(['$push' => [
-                //                             'third_task.history_checks' => [
-                //                                 'completed' => 1,
-                //                                 'time' => (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'),
-                //                             ]
-                //                         ]]);
-                //                 }
-                //             }
-                //         }
-                //     }
-                //     if ($exit) break;
-                //     $offset += $limit;
-                //     $response = $this->executeVKRequest('wall.get', [
-                //         'owner_id' => $user['vk_id'],
-                //         'offset' => $offset,
-                //         'count' => $limit,
-                //         'filter' => 'owner'
-                //     ]);
-                //     sleep(1);
-                // }
+                while (isset($response['count']) &&
+                       $response['count'] > 0 &&
+                       isset($response['items']) && 
+                       is_array($response['items'])) {
+                    Log::info('3 items');
+                    Log::info($response['items']);
+                    foreach ($response['items'] as $comment) {
+                        if (!empty($comment['from_id']) && $comment['from_id'] == $user['vk_id']) {
+                            $exit = true;
+                            DB
+                                ::connection('mongodb')
+                                ->collection('sunmar_user')
+                                ->where('vk_id', (int) $user['vk_id'])
+                                ->update(['seventh_task.completed' => 1, 'current_tasks_completed' => 1]);
+                                
+                            DB
+                                ::connection('mongodb')
+                                ->collection('sunmar_user')
+                                ->where('vk_id', (int) $user['vk_id'])
+                                ->update(['$push' => [
+                                    'seventh_task.history_checks' => [
+                                        'completed' => 1,
+                                        'time' => (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'),
+                                    ]
+                                ]]);
+                        }
+                    }
+                    if ($exit) break;
+                    $offset += $limit;
+                    $response = $this->executeVKRequest('wall.get', [
+                        'owner_id' => $user['vk_id'],
+                        'offset' => $offset,
+                        'count' => $limit,
+                        'filter' => 'owner'
+                    ]);
+                    sleep(1);
+                }
             }
             $usersOffset += $usersLimit;
             $users = $this->getSunmarUsers($usersLimit, $usersOffset);
