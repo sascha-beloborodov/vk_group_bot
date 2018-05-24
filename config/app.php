@@ -240,6 +240,6 @@ return [
         'Debugbar' => Barryvdh\Debugbar\Facade::class,
     ],
 
-    'sunmar_keyword' => env('SUNMAR_GROUP_ID'),
-    'sunmar_group_id' => env('SUNMAR_KEYWORD'),
+    'sunmar_keyword' => env('SUNMAR_KEYWORD'),
+    'sunmar_group_id' => env('SUNMAR_GROUP_ID'),
 ];

@@ -42,13 +42,7 @@ class RunTask implements ShouldQueue
         Log::useFiles(storage_path().'/logs/run_task.log');
         $offset = 0;
         $limit = 20;
-        $participants = DB
-            ::connection('mongodb')
-            ->collection('sunmar_user')
-            ->where('completed', 1)
-            ->skip($offset)
-            ->take($limit)
-            ->get();
+        $participants = $this->getSunmarUsers($limit, $offset);
 
         while ($participants->count()) {
             foreach ($participants as $participant) {
@@ -66,14 +60,33 @@ class RunTask implements ShouldQueue
             }
 
             $offset += 20;
-            $participants = DB
-                ::connection('mongodb')
-                ->collection('sunmar_user')
-                ->where('completed', 1)
-                ->skip($offset)
-                ->take($limit)
-                ->get();
+            $participants = $this->getSunmarUsers($limit, $offset);
         }
+        $this->resetTaskStatus();
+    }
+    
+    
+    /**
+     * Get users by page
+     *
+     * @param integer $limit
+     * @param integer $offset
+     * @return void
+     */
+    private function getSunmarUsers(int $limit, int $offset)
+    {
+        return DB
+            ::connection('mongodb')
+            ->collection('sunmar_user')
+            ->where('registration_completed', 1)
+            ->where('current_tasks_completed', 1)
+            ->skip($offset)
+            ->take($limit)
+            ->get();
+    }
 
+    private function resetTaskStatus()
+    {
+        DB::connection('mongodb')->collection('sunmar_user')->update(['current_tasks_completed' => 0]);
     }
 }
