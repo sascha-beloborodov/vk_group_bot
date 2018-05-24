@@ -221,12 +221,13 @@ class CheckTask implements ShouldQueue
                     foreach ($response['items'] as $item) {
                         Log::info('3 item');
                         Log::info($item);
-                        if (!empty($item['post_type']) && $item['post_type'] != 'post') continue;
+                        if (empty($item['post_type']) || $item['post_type'] != 'post') continue;
+                        // Log::info('3 attachments');
+                        // Log::info($item['attachments']);
                         if (!empty($item['attachments']) && is_array($item['attachments'])) {
                             foreach ($item['attachments'] as $attachment) {
                                 if (!empty($attachment['type']) &&
                                     $attachment['type'] == 'photo' && 
-                                    !empty($attachment['photo']['text']) &&
                                     (stripos($attachment['photo']['text'], config('app.sunmar_keyword')) !== false ||
                                     stripos($item['text'], config('app.sunmar_keyword')) !== false)
                                     )
@@ -284,7 +285,8 @@ class CheckTask implements ShouldQueue
         return DB
             ::connection('mongodb')
             ->collection('sunmar_user')
-            ->where('completed', 1)
+            ->where('registration_completed', 1)
+            
             ->skip($offset)
             ->take($limit)
             ->get();
