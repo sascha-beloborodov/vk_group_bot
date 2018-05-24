@@ -90,7 +90,7 @@
         },
         methods: {
             neededToken() {
-                return this.num == 3 || this.num == 2;
+                return this.num == 3 || this.num == 2 || this.num == 7;
             },
             deleteAll() {
                 this.$store.commit(LOADING);
@@ -169,7 +169,7 @@
                 });
             },
             checkResults(num) {
-                if (this.neededToken() && !this.token.length) {
+                if (this.neededToken() && this.token == '') {
                     this.$toastr.e('Для этого задания нужен токен');
                     return;
                 }

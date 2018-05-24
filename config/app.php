@@ -242,4 +242,5 @@ return [
 
     'sunmar_keyword' => env('SUNMAR_KEYWORD'),
     'sunmar_group_id' => env('SUNMAR_GROUP_ID'),
+    'sunmar_post_id' => env('SUNMAR_POST_ID'),
 ];
