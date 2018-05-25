@@ -82,23 +82,7 @@ class CheckTask implements ShouldQueue
                     ]);
                     sleep(1);
                     Log::info($response);
-                    DB
-                        ::connection('mongodb')
-                        ->collection('sunmar_user')
-                        ->where('vk_id', (int) $user['vk_id'])
-                        ->update(['first_task.completed' => (int) $response, 'current_tasks_completed' => 1]);
-
-                    DB
-                        ::connection('mongodb')
-                        ->collection('sunmar_user')
-                        ->where('vk_id', (int) $user['vk_id'])
-                        ->update(['first_task.history_checks' => [
-                            '$push' => [
-                                'checked_at_utc' => (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'),
-                                'completed' => (int) $response
-                            ]
-                        ]]);
-                    
+                    $this->toggleStatus((int) $user['vk_id'], 'first_task', (int) $response);                   
                 } catch (\Exception $e) {
                     sleep(1);
                     Log::info('Cannot get data for user id - ' . $user['vk_id']);
@@ -152,23 +136,8 @@ class CheckTask implements ShouldQueue
 
                                 if (!empty($source['owner_id']) && abs($source['owner_id']) == config('app.sunmar_group_id')) {
                                     Log::info('save');
-
-                                    DB
-                                        ::connection('mongodb')
-                                        ->collection('sunmar_user')
-                                        ->where('vk_id', (int) $user['vk_id'])
-                                        ->update(['second_task.completed' => 1, 'current_tasks_completed' => 1]);
-                                    DB
-                                        ::connection('mongodb')
-                                        ->collection('sunmar_user')
-                                        ->where('vk_id', (int) $user['vk_id'])
-                                        ->update(['$push' => [
-                                            'second_task.history_checks' => [
-                                                'completed' => 1,
-                                                'time' => (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'),
-                                            ]
-                                        ]]);
                                     $exit = true;
+                                    $this->toggleStatus((int) $user['vk_id'], 'second_task', 1);
                                 }
                             }
                         }
@@ -184,6 +153,9 @@ class CheckTask implements ShouldQueue
                     Log::info('response while');
                     Log::info($response);
                     sleep(1);
+                }
+                if (!$exit) {
+                    $this->toggleStatus((int) $user['vk_id'], 'second_task', 0);
                 }
             }
             $usersOffset += $usersLimit;
@@ -235,21 +207,7 @@ class CheckTask implements ShouldQueue
                                     )
                                 {
                                     $exit = true;
-                                    DB
-                                        ::connection('mongodb')
-                                        ->collection('sunmar_user')
-                                        ->where('vk_id', (int) $user['vk_id'])
-                                        ->update(['third_task.completed' => 1, 'current_tasks_completed' => 1]);
-                                    DB
-                                        ::connection('mongodb')
-                                        ->collection('sunmar_user')
-                                        ->where('vk_id', (int) $user['vk_id'])
-                                        ->update(['$push' => [
-                                            'third_task.history_checks' => [
-                                                'completed' => 1,
-                                                'time' => (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'),
-                                            ]
-                                        ]]);
+                                    $this->toggleStatus((int) $user['vk_id'], 'third_task', 1);
                                 }
                             }
                         }
@@ -263,6 +221,9 @@ class CheckTask implements ShouldQueue
                         'filter' => 'owner'
                     ]);
                     sleep(1);
+                }
+                if (!$exit) {
+                    $this->toggleStatus((int) $user['vk_id'], 'third_task', 0);
                 }
             }
             $usersOffset += $usersLimit;
@@ -307,22 +268,7 @@ class CheckTask implements ShouldQueue
                     foreach ($response['items'] as $comment) {
                         if (!empty($comment['from_id']) && $comment['from_id'] == $user['vk_id']) {
                             $exit = true;
-                            DB
-                                ::connection('mongodb')
-                                ->collection('sunmar_user')
-                                ->where('vk_id', (int) $user['vk_id'])
-                                ->update(['seventh_task.completed' => 1, 'current_tasks_completed' => 1]);
-                                
-                            DB
-                                ::connection('mongodb')
-                                ->collection('sunmar_user')
-                                ->where('vk_id', (int) $user['vk_id'])
-                                ->update(['$push' => [
-                                    'seventh_task.history_checks' => [
-                                        'completed' => 1,
-                                        'time' => (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'),
-                                    ]
-                                ]]);
+                            $this->toggleStatus((int) $user['vk_id'], 'seventh_task', 1);
                         }
                     }
                     if ($exit) break;
@@ -335,10 +281,41 @@ class CheckTask implements ShouldQueue
                     ]);
                     sleep(1);
                 }
+                if (!$exit) {
+                    $this->toggleStatus((int) $user['vk_id'], 'seventh_task', 0);
+                }
             }
             $usersOffset += $usersLimit;
             $users = $this->getSunmarUsers($usersLimit, $usersOffset);
         }
+    }
+
+    /**
+     * Change user's status completition task
+     *
+     * @param integer $userId
+     * @param string $task
+     * @param integer $status
+     * @return void
+     */
+    private function toggleStatus(int $userId, string $task, int $status)
+    {
+        DB
+            ::connection('mongodb')
+            ->collection('sunmar_user')
+            ->where('vk_id', $userId)
+            ->update(["{$task}.completed" => $status, 'current_tasks_completed' => $status]);
+
+        DB
+            ::connection('mongodb')
+            ->collection('sunmar_user')
+            ->where('vk_id', $userId)
+            ->update(['$push' => [
+                "{$task}.history_checks" => [
+                    'completed' => $status,
+                    'time' => (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'),
+                ]
+            ]]);
     }
 
     private function executeVKRequest(string $method, array $params) :array
