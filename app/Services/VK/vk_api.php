@@ -45,8 +45,8 @@ function vkApi_docsSave($file, $title) {
   ));
 }
 
-function _vkApi_call($method, $params = array()) {
-  $params['access_token'] = env('VK_API_ACCESS_TOKEN');
+function _vkApi_call($method, $params = array(), $token = null) {
+  $params['access_token'] = $token ?? env('VK_API_ACCESS_TOKEN');
   $params['v'] = VK_API_VERSION;
 
   $query = http_build_query($params);

@@ -239,4 +239,8 @@ return [
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
         'Debugbar' => Barryvdh\Debugbar\Facade::class,
     ],
+
+    'sunmar_keyword' => env('SUNMAR_KEYWORD'),
+    'sunmar_group_id' => env('SUNMAR_GROUP_ID'),
+    'sunmar_post_id' => env('SUNMAR_POST_ID'),
 ];

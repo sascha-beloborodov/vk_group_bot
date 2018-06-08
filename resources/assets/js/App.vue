@@ -35,6 +35,17 @@
                     <router-link to="/participants"><i class="fa fa-home"></i>Участники голосования</router-link>
                 </li>
 
+                <br><hr><br>
+                <h4>Sunmar</h4>
+                <li v-bind:class="{ active: $route.path == '/sunmar/users' }">
+                    <router-link to="/sunmar/users"><i class="fa fa-home"></i>Пользователи</router-link>
+                </li>
+
+                <li v-bind:class="{ active: $route.path == '/sunmar/tasks' }">
+                    <router-link to="/sunmar/tasks"><i class="fa fa-home"></i>Задания</router-link>
+                </li>
+
+
             </ul>
             <!-- /.sidebar-menu -->
         </section>

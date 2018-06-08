@@ -63,13 +63,38 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
     Route::get('participants/all', 'ParticipantController@getAll');
     Route::post('participants/{id}', 'ParticipantController@edit');
     Route::put('participants', 'ParticipantController@create');
+
+    Route::get('sunmar/tasks', 'SunmarController@getAllTasks');
+    Route::delete('sunmar', 'SunmarController@deleteData');
+    Route::get('sunmar/task/{num}', 'SunmarController@getByNum');
+    Route::get('sunmar/users', 'SunmarController@getUsers');
+    Route::post('sunmar/task/run', 'SunmarController@runTask');
+    Route::post('sunmar/task/check', 'SunmarController@checkTask');
+    
+    
 });
 
-//Route::get('admin', function () {
-//	if (\Illuminate\Support\Facades\Auth::check()) {
-//		return redirect('admin/home');
-//	}
-//	return redirect('admin/login');
-//});
+use ATehnix\VkClient\Auth;
+use ATehnix\VkClient\Client;
+use Illuminate\Http\Request;
+
+Route::get('vk_auth', function(Request $request) {
+	$api = new Client;
+	$auth = new Auth('6485912', 'nbRl9L4vQsLwmR9yS7tN', 'http://dev-kfc-bot-admin.grapheme.ru/vk_auth');
+	echo "<a href='{$auth->getUrl()}'>ClickMe<a><br>";
+	$token = '-';
+	if ($request->get('code')) {
+		$token = $auth->getToken($request->get('code'));
+	}
+//	$api->setDefaultToken($token);
+	echo 'Токен<br>' . $token;
+});
+
+// Route::get('admin', function () {
+// 	if (\Illuminate\Support\Facades\Auth::check()) {
+// 		return redirect('admin');
+// 	}
+// 	return redirect('admin/login');
+// });
 
 //Auth::routes();
