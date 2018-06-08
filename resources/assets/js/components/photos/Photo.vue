@@ -73,10 +73,11 @@
                 });
             },
             edit() {
-                if (this.photo.name.length < 2 || !this.photo.fest.id) {
+                if (this.photo.name.length == 0 || !this.photo.fest.id) {
                     alert('Некорректно заполнены данные');
                     return;
                 }
+                
                 this.$store.commit(LOADING);
                 const data = { id: this.photo.fest.id, name: this.photo.name};
                 data.city = this.fests.filter(val => val.id == this.photo.fest.id)[0]['name'];

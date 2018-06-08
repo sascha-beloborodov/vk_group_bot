@@ -61,7 +61,7 @@
                 }).catch(error => { this.$store.commit(LOADING_SUCCESS); });
             },
             create() {
-                if (this.photo.name.length < 2 || !this.photo.fest.id) {
+                if (this.photo.name.length == 0 || !this.photo.fest.id) {
                     alert('Некорректно заполнены данные');
                     return;
                 }
