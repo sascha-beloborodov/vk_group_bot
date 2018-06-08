@@ -69,8 +69,11 @@ class PhotoController extends AppBaseController
             return 'Голосов нет';
         }
 
-        $city = DB::connection('mongodb')->collection('fests')->where('id', $request->get('id'))->first();
-        $votes = DB::connection('mongodb')->collection('photo_votes')->where('city_id', $request->get('id'))->get();
+        $city = DB::connection('mongodb')->collection('fests')->where('id', (int) $request->get('id'))->first();
+        $votes = DB::connection('mongodb')->collection('photo_votes')->where('city_id', (int) $request->get('id'))->get();
+        if (!$votes->count()) {
+            $votes = DB::connection('mongodb')->collection('photo_votes')->where('city_id', $request->get('id'))->get();
+        }
         if (empty($city) || empty($votes)) {
             return 'Голосов нет';
         }
