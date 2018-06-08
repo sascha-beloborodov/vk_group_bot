@@ -89,6 +89,16 @@ class UsersController extends AppBaseController
             ->collection('vk_users')
             ->orderBy('created_at', -1);
 
+        if ((int) $request->get('cityId')) {
+            $subs = DB
+                    ::connection('mongodb')
+                    ->collection('subscribers')
+                    ->where('city_id', (int) $request->get('cityId'))
+                    ->groupBy('vk_id')
+                    ->get(['vk_id']);
+            $userIds = $subs->map(function($val) { return $val['vk_id'];})->toArray();
+            $query->whereIn('vk_id',  $userIds);
+        }
         $type = $request->get('type');
 
         $users = $query->paginate($request->get('per_page', 50));
