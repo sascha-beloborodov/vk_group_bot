@@ -23,13 +23,13 @@
                             <td>#6</td>
                             <td>#7</td>
                         </tr>
-                        <tr v-for="(user, idx) in users">
-                            <td>{{user.vk_id}}</td>
+                        <tr v-for="(user, idx) in users" :class="{deesagred : user.is_agreed == 2 || user.is_agreed == 0 }">
+                            <td><a :href="vkPage(user.vk_id)" _target="blank">{{user.vk_id}}</a></td>
                             <td>{{user.first_name }} {{ user.last_name}}</td>
                             <td><img :src="user.photo_50" alt=""></td>
-                            <td>{{user.created_at}}}</td>
-                            <td>{{user.is_agreed}}</td>
-                            <td>{{user.reason_disagree}}</td>
+                            <td>{{user.created_at}}</td>
+                            <td>{{user.is_agreed == 1 ? 'Да' : 'Нет'}}</td>
+                            <td>{{user.is_agreed == 0 ? 'Сразу вышел/не стал уточнять' : user.reason_disagree}}</td>
                             <td>{{user.age}}</td>
                             <td>{{user.city_of_life}}</td>
                             <td>{{user.city_of_travel}}</td>
@@ -115,7 +115,7 @@
 
         watch: {
             $route() {
-                this.fetchUserMessages();
+                this.fetchData();
             }
         },
 
@@ -136,6 +136,9 @@
                     this.total = response.data.users.total;
                 });
             },
+            vkPage(userId) {
+                return `https://vk.com/id${userId}`;
+            }
         },
         filters: {
             frotTimeStamp(value) {
@@ -152,5 +155,8 @@
     td {
         padding: 5px;
         border-bottom: 1px solid #b9b9b9ee;
+    }
+    .deesagred {
+        background: #afafaf;
     }
 </style>
