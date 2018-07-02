@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Response;
+use App\Jobs\SunmarNotify;
 
 class SunmarController extends AppBaseController
 {
@@ -84,6 +85,83 @@ class SunmarController extends AppBaseController
             ->json([
                 'users' => $users
             ]);
+    }
+
+    public function message(Request $request)
+    {
+        if (empty($request->get('text'))) {
+            return response()->json(['message' => 'Write a message'], 422);
+        }
+        SunmarNotify::dispatch($request->get('text'))->delay(now()->addSecond(20));
+        return response()->json(['message' => 'Сообщения отправляются']);
+    }
+
+    /**
+     * List of registered sunmar users response
+     *
+     * @param Request $request
+     * @return string
+     */
+    public function importUsers(Request $request)
+    {
+        $users = DB::connection('mongodb')
+            ->collection('sunmar_user')
+            ->get();
+        $dataResponse = [[
+            'VK ID',
+            'Имя',
+            'Фамилия',
+            'Аватар',
+            'Дата',
+            'Учавствует',
+            'Причина отказа',
+            'Возраст',
+            'Город',
+            'Путешествие',
+            'Регистрация завершена',
+            'Задача #1',
+            'Задача #2',
+            'Задача #3',
+            'Задача #4',
+            'Задача #5',
+            'Задача #6',
+            'Задача #7',
+        ]];
+        foreach ($users as $user) {
+            $dataResponse[] = [
+                $user['vk_id'],
+                $user['first_name'],
+                $user['last_name'],
+                $user['photo_100'],
+                $user['created_at_utc'],
+
+                (int) $user['is_agreed'] ? '+' : '-',
+                $user['reason_disagree'],
+                $user['age'],
+                $user['city_of_life'],
+                $user['city_of_travel'],
+                (int) $user['registration_completed'] ? '+' : '-',
+                (int) @$user['first_task']['completed'] ? '+' : '-',
+                (int) @$user['second_task']['completed'] ? '+' : '-',
+                (int) @$user['third_task']['completed'] ? '+' : '-',
+                (int) @$user['fourth_task']['completed'] ? '+' : '-',
+                (int) @$user['fifth_task']['completed'] ? '+' : '-',
+                (int) @$user['sixth_task']['completed'] ? '+' : '-',
+                (int) @$user['seventh_task']['completed'] ? '+' : '-',
+            ];
+        }
+        $filename = "sunmar_users";
+        $outputBuffer = fopen("php://output", 'w');
+        foreach ($dataResponse as $val) {
+            fputcsv($outputBuffer, $val);
+        }
+        sleep(2);
+        fclose($outputBuffer);
+        header("Content-type: text/csv");
+        header("Content-Disposition: attachment; filename={$filename}.csv");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        die;
     }
 
     /**

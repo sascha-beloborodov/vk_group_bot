@@ -70,7 +70,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
     Route::get('sunmar/users', 'SunmarController@getUsers');
     Route::post('sunmar/task/run', 'SunmarController@runTask');
     Route::post('sunmar/task/check', 'SunmarController@checkTask');
-    
+    Route::post('sunmar/message', 'SunmarController@message');
+    Route::get('sunmar/users/import', 'SunmarController@importUsers');
     
 });
 

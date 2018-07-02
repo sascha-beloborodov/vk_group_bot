@@ -48,6 +48,8 @@
                             <td>{{user.seventh_task.completed}}</td>
                         </tr>
                     </table>
+                    <br>
+                    <button class="btn btn-primary" @click="importParticipants()">Список в CSV</button>
                     <br><br>
                     <pagination
                             :currentPage="currentPage"
@@ -138,6 +140,9 @@
             },
             vkPage(userId) {
                 return `https://vk.com/id${userId}`;
+            },
+            importParticipants() {
+                window.open(`/admin/sunmar/users/import`);
             }
         },
         filters: {
