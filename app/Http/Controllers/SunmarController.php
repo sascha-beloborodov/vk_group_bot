@@ -104,6 +104,11 @@ class SunmarController extends AppBaseController
      */
     public function importUsers(Request $request)
     {
+        $filename = "sunmar_users";
+        header("Content-type: text/csv");
+        header("Content-Disposition: attachment; filename={$filename}.csv");
+        header("Pragma: no-cache");
+        header("Expires: 0");
         $users = DB::connection('mongodb')
             ->collection('sunmar_user')
             ->get();
@@ -150,17 +155,11 @@ class SunmarController extends AppBaseController
                 (int) @$user['seventh_task']['completed'] ? '+' : '-',
             ];
         }
-        $filename = "sunmar_users";
         $outputBuffer = fopen("php://output", 'w');
         foreach ($dataResponse as $val) {
             fputcsv($outputBuffer, $val);
         }
-        sleep(2);
         fclose($outputBuffer);
-        header("Content-type: text/csv");
-        header("Content-Disposition: attachment; filename={$filename}.csv");
-        header("Pragma: no-cache");
-        header("Expires: 0");
         die;
     }
 
