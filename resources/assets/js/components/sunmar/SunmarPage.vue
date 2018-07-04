@@ -55,7 +55,7 @@
                 } else {
                     this.$store.commit(LOADING);
                     this.error = false;
-                    axios.post('/sunmar/message', { text: this.message, }).then((response) => {
+                    axios.post('/admin/sunmar/message', { text: this.message, }).then((response) => {
                         this.closeModal();
                         this.$toastr.s("Сообщения начитнают рассылаться");
                         this.message = '';
