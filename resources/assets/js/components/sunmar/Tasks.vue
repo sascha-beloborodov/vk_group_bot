@@ -2,7 +2,6 @@
     <div>
         <h4>Список заданий</h4>
         <div class="col-md-9">
-            <button class="btn btn-danger" @click="deleteAll">Удалить инфо</button>
             <button class="btn btn-primary" @click="getToken">Получить токен</button>
             <br><br>
             <div class="form-group">
@@ -37,7 +36,6 @@
                                 Запуск задания #{{num}}
                             </slot>
                         </div>
-
                         <div class="modal-body">
                             <slot name="body">
                                 <div class="form-group">
@@ -91,19 +89,6 @@
         methods: {
             neededToken() {
                 return this.num == 3 || this.num == 2 || this.num == 7;
-            },
-            deleteAll() {
-                this.$store.commit(LOADING);
-                this.isLoaded = false;
-                axios.delete(`/admin/sunmar`).then((response) => {
-                    this.isLoaded = true;
-                    this.$store.commit(LOADING_SUCCESS);
-                    this.fetchData();
-                }).catch(error => {
-                    console.warn(error);
-                    this.$store.commit(LOADING_SUCCESS);
-                    this.fetchData();
-                });
             },
             fetchData() {
                 this.$store.commit(LOADING);
