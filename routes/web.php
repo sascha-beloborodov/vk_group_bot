@@ -65,7 +65,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
     Route::put('participants', 'ParticipantController@create');
 
     Route::get('sunmar/tasks', 'SunmarController@getAllTasks');
-    Route::delete('sunmar', 'SunmarController@deleteData');
     Route::get('sunmar/task/{num}', 'SunmarController@getByNum');
     Route::get('sunmar/users', 'SunmarController@getUsers');
     Route::post('sunmar/task/run', 'SunmarController@runTask');
