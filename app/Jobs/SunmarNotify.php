@@ -7,6 +7,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SunmarNotify implements ShouldQueue
 {
@@ -42,11 +44,12 @@ class SunmarNotify implements ShouldQueue
         // loop parts of users
         while ($users->count()) {
             foreach ($users as $user) {
-                Log::info('Send fail to - ' . $user['vk_id']);
-                continue;
+                // if (!in_array((int) $user['vk_id'], [297962185, 479282981])) {
+                //     continue;
+                // }
                 try {
-
                     vkApi_messagesSend($user['vk_id'], $this->message);
+                    Log::info('Send success to - ' . $user['vk_id']);
                     sleep(1);
                 } catch (\Exception $e) {
                     Log::info('Send fail to - ' . $user['vk_id']);

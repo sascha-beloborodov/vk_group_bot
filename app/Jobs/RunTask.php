@@ -52,6 +52,7 @@ class RunTask implements ShouldQueue
                     ->update(['data.task' => $this->num, 'section' => 'sunmar']);
                 try {
                     vkApi_messagesSend($participant['vk_id'], $this->text);
+                    Log::info('Send success to - ' . $participant['vk_id']);
                     sleep(1);
                 } catch (\Exception $e) {
                     Log::info('Send fail to - ' . $participant['vk_id']);
