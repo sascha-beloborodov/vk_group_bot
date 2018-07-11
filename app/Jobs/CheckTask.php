@@ -81,7 +81,7 @@ class CheckTask implements ShouldQueue
                         'user_id' => $user['vk_id']
                     ]);
                     sleep(1);
-                    Log::info($response);
+                    Log::info('Checking #1 task for user - ' . $user['vk_id']);
                     $this->toggleStatus((int) $user['vk_id'], 'first_task', (int) $response);                   
                 } catch (\Exception $e) {
                     sleep(1);
@@ -110,8 +110,7 @@ class CheckTask implements ShouldQueue
                         'count' => $limit,
                         'filter' => 'owner'
                     ]);
-                    Log::info('response');
-                    Log::info($response);
+                    Log::info('Checking #2 task for user - ' . $user['vk_id']);
                     sleep(1);
                 } catch (\Exception $e) {
                     sleep(1);
@@ -122,17 +121,15 @@ class CheckTask implements ShouldQueue
                 $exit = false;
                 sleep(1);
                 while (isset($response['count']) && $response['count'] > 0 && isset($response['items'])) {
-                    Log::info('items');
-                    Log::info($response['items']);
                     foreach ($response['items'] as $item) {
                         if (!empty($item['copy_history']) && is_array($item['copy_history'])) {
-                            Log::info('copy_history');
-                            Log::info($item['copy_history']);
+                            // Log::info('copy_history');
+                            // Log::info($item['copy_history']);
                             foreach ($item['copy_history'] as $source) {
-                                Log::info('source');
-                                Log::info($source['owner_id']);
-                                Log::info('group id ' . config('app.sunmar_group_id'));
-                                Log::info('user id ' . $user['vk_id']);
+                                // Log::info('source');
+                                // Log::info($source['owner_id']);
+                                // Log::info('group id ' . config('app.sunmar_group_id'));
+                                // Log::info('user id ' . $user['vk_id']);
 
                                 if (!empty($source['owner_id']) && abs($source['owner_id']) == config('app.sunmar_group_id')) {
                                     Log::info('save');
@@ -150,8 +147,8 @@ class CheckTask implements ShouldQueue
                         'count' => $limit,
                         'filter' => 'owner'
                     ]);
-                    Log::info('response while');
-                    Log::info($response);
+                    // Log::info('response while');
+                    // Log::info($response);
                     sleep(1);
                 }
                 if (!$exit) {
@@ -179,8 +176,8 @@ class CheckTask implements ShouldQueue
                         'count' => $limit,
                         'filter' => 'owner'
                     ]);
-                    Log::info('3 response');
-                    Log::info($response);
+                    // Log::info('3 response');
+                    // Log::info($response);
                     sleep(1);
                 } catch (\Exception $e) {
                     sleep(1);
@@ -190,11 +187,11 @@ class CheckTask implements ShouldQueue
                 $exit = false;
 
                 while (isset($response['count']) && $response['count'] > 0 && isset($response['items'])) {
-                    Log::info('3 items');
-                    Log::info($response['items']);
+                    // Log::info('3 items');
+                    // Log::info($response['items']);
                     foreach ($response['items'] as $item) {
-                        Log::info('3 item');
-                        Log::info($item);
+                        // Log::info('3 item');
+                        // Log::info($item);
                         if (empty($item['post_type']) || $item['post_type'] != 'post') continue;
                         // Log::info('3 attachments');
                         // Log::info($item['attachments']);
@@ -249,8 +246,8 @@ class CheckTask implements ShouldQueue
                         'count' => $limit,
                         'filter' => 'owner'
                     ]);
-                    Log::info('comment response');
-                    Log::info($response);
+                    // Log::info('comment response');
+                    // Log::info($response);
                     sleep(1);
                 } catch (\Exception $e) {
                     sleep(1);
@@ -263,8 +260,8 @@ class CheckTask implements ShouldQueue
                        $response['count'] > 0 &&
                        isset($response['items']) && 
                        is_array($response['items'])) {
-                    Log::info('3 items');
-                    Log::info($response['items']);
+                    // Log::info('3 items');
+                    // Log::info($response['items']);
                     foreach ($response['items'] as $comment) {
                         if (!empty($comment['from_id']) && $comment['from_id'] == $user['vk_id']) {
                             $exit = true;
