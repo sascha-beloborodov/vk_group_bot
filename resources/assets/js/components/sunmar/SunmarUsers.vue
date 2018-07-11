@@ -175,7 +175,10 @@
                         this.$toastr.s("Сообщения начитнают рассылаться");
                         this.message = '';
                         this.$store.commit(LOADING_SUCCESS);
-                    }).catch(error => this.$toastr.e("Произошла ошибка"));
+                    }).catch((error) => {
+                        console.log(error);
+                        this.$toastr.e("Произошла ошибка");
+                    });
                 }
             },
         },
