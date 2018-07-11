@@ -1,5 +1,8 @@
 <template>
     <div class='row show-page-container'>
+        <div class="col-md-8">
+            <button class="btn btn-primary btn-popup" @click="toggleModal" :diabled="false">Отправить сообщение участникам</button>
+        </div>
         <div class="col-md-8" v-if="isLoaded">
             <div class="row" v-if="users.length">
                 <div class="col-md-12">
@@ -60,7 +63,18 @@
                 </div>
             </div>
         </div>
-
+        <message-modal v-if="showModal">
+            <div slot="header">
+                Сообщение участникам
+            </div>
+            <div slot="body">
+                <textarea class="form-control" v-model="message" cols="30" rows="10"></textarea>
+            </div>
+            <div slot="footer">
+                <button class="btn btn-success" @click="send()">Отправить</button>
+                <button class="btn btn-danger" @click="toggleModal()">Закрыть</button>
+            </div>
+        </message-modal>
     </div>
 </template>
 
@@ -73,6 +87,7 @@
         SET_ACTIVEUSER
     } from '../../store/mutation-types';
 
+    import { participantMixin } from '../../mixins/participants';
     import moment from 'moment';
     import MessageModal from '../MessageModal';
     import Pagination from '../Pagination';
@@ -143,7 +158,26 @@
             },
             importParticipants() {
                 window.open(`/admin/sunmar/users/import`);
-            }
+            },
+            toggleModal() {
+                this.$store.state.showModal ? this.$store.commit(MODAL_CLOSE) : this.$store.commit(MODAL_OPEN);
+            },
+            send() {
+                if (!this.message.length) {
+                    this.$toastr.e("Вы не ввели сообщение");
+                } else if (this.message.length > 700) {
+                    this.$toastr.e("Сообщение слишком длинное");
+                } else {
+                    this.$store.commit(LOADING);
+                    this.error = false;
+                    axios.post('/admin/sunmar/message', { text: this.message, }).then((response) => {
+                        this.closeModal();
+                        this.$toastr.s("Сообщения начитнают рассылаться");
+                        this.message = '';
+                        this.$store.commit(LOADING_SUCCESS);
+                    }).catch(error => this.$toastr.e("Произошла ошибка"));
+                }
+            },
         },
         filters: {
             frotTimeStamp(value) {
